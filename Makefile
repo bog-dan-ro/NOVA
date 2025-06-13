@@ -23,25 +23,32 @@
 
 # Defaults
 ARCH	?= x86_64
-BOARD	?= acpi
-COMP	?= gcc
-CFP	?= none
+
+# Configuration
+ifneq ("$(wildcard conf/archs/$(ARCH).conf)","")
+include conf/archs/$(ARCH).conf
+else
+$(error conf/archs/$(ARCH).conf is not a valid architecture config)
+endif
+
+ifneq ("$(wildcard conf/archs/common.conf)","")
+include conf/archs/common.conf
+else
+$(error conf/archs/common.conf is missing)
+endif
 
 # Tools
 INSTALL	?= install -m 644
 MKDIR	?= mkdir -p
 ifeq ($(COMP),gcc)
 HST_CC	?= g++
-TGT_CC	:= $(PREFIX_$(ARCH))g++
-TGT_LD	:= $(PREFIX_$(ARCH))ld
-TGT_OC	:= $(PREFIX_$(ARCH))objcopy
-TGT_SZ	:= $(PREFIX_$(ARCH))size
+TGT_CC	:= $(PREFIX)g++
+TGT_LD	:= $(PREFIX)ld
+TGT_OC	:= $(PREFIX)objcopy
+TGT_SZ	:= $(PREFIX)size
 else
 $(error $(COMP) is not a valid compiler type)
 endif
-H2E	:= $(H2E_$(ARCH))
-H2B	:= $(H2B_$(ARCH))
-RUN	:= $(RUN_$(ARCH))
 
 # In-place editing works differently between GNU/BSD sed
 SEDI	:= $(shell if sed --version 2>/dev/null | grep -q GNU; then echo "sed -i"; else echo "sed -i ''"; fi)
@@ -50,11 +57,26 @@ SEDI	:= $(shell if sed --version 2>/dev/null | grep -q GNU; then echo "sed -i"; 
 CMD_DIR	:= cmd
 SRC_DIR	:= src/$(ARCH) src
 INC_DIR	:= inc/$(ARCH) inc
-BLD_DIR	?= build-$(ARCH)
+BLD_DIR	?= build/$(ARCH)
+
+# Configure board feature set
+ifneq ("$(wildcard conf/boards/$(ARCH)/$(BOARD).conf)","")
+-include conf/boards/$(ARCH)/$(BOARD).conf
+$(foreach feature,$(FEATURES), \
+	$(eval INC_DIR += inc/$(feature)) \
+	$(eval INC_DIR += inc/$(ARCH)/$(feature)) \
+	$(eval SRC_DIR += src/generic/$(feature)) \
+	$(eval SRC_DIR += src/$(ARCH)/$(feature)) \
+	$(eval DEFINES += FEATURE_$(feature)))
+else
+$(error conf/boards/$(ARCH)/$(BOARD).conf is not a valid board type)
+endif
+
 
 # Patterns
+OBJ_DIR	?= $(BLD_DIR)/obj
 PAT_CMD	:= $(BLD_DIR)/%
-PAT_OBJ	:= $(BLD_DIR)/$(ARCH)-%.o
+PAT_OBJ	:= $(OBJ_DIR)/%.o
 
 # Files
 MFL	:= $(MAKEFILE_LIST)
@@ -63,11 +85,9 @@ OBJ	:= $(patsubst %.ld,$(PAT_OBJ), $(patsubst %.S,$(PAT_OBJ), $(patsubst %.cpp,$
 OBJ_DEP	:= $(OBJ:%.o=%.d)
 
 DIG	:= $(BLD_DIR)/digest
-ifeq ($(ARCH),aarch64)
-HYP	:= $(BLD_DIR)/$(ARCH)-$(BOARD)-nova
-else
-HYP	:= $(BLD_DIR)/$(ARCH)-nova
-endif
+HYP	:= $(HYP_NAMING)
+DBG	:= $(HYP).debug
+MAP	:= $(HYP).map
 ELF	:= $(HYP).elf
 BIN	:= $(HYP).bin
 
@@ -90,17 +110,10 @@ VPATH	:= $(SRC_DIR)
 
 # Optimization options
 DFLAGS	:= -MP -MMD -pipe
-OFLAGS	:= -Os
-ifeq ($(ARCH),aarch64)
-MFLAGS	:= -march=armv8-a -mcmodel=large -mgeneral-regs-only -mno-outline-atomics -mstrict-align
-DEFINES	+= BOARD_$(BOARD)
-else ifeq ($(ARCH),x86_64)
-MFLAGS	:= -Wa,--divide,--noexecstack -march=x86-64-v2 -mcmodel=kernel -mgeneral-regs-only -mno-red-zone
-else
-$(error $(ARCH) is not a valid architecture)
-endif
+OFLAGS	:= -g -Os
 
 # Preprocessor options
+DEFINES	+= $(ARCH_DEFINES)
 PFLAGS	:= $(addprefix -D, $(DEFINES))
 PFLAGS	+= $(addprefix -I, $(INC_DIR))
 
@@ -120,21 +133,21 @@ WFLAGS	+= $(call check,-Wnrvo)
 # Warning options added in gcc-15
 WFLAGS	+= $(call check,-Wleading-whitespace=spaces)
 WFLAGS	+= $(call check,-Wtrailing-whitespace=any)
-
-ifeq ($(ARCH),aarch64)
-WFLAGS	+= $(call check,-Wpedantic)
-endif
+WFLAGS	+= $(ARCH_WFLAGS)
 
 # Compiler flags
 CFLAGS	:= $(PFLAGS) $(DFLAGS) $(MFLAGS) $(FFLAGS) $(OFLAGS) $(WFLAGS)
 
 # Linker flags
-LFLAGS	:= --defsym=GIT_VER=0x$(call gitrv) --gc-sections --warn-common -static -n -s -T
+LFLAGS	:= --defsym=GIT_VER=0x$(call gitrv) --gc-sections --warn-common -Map=$(MAP) -static -n -T
 
 # Rules
 $(HYP):			$(OBJ)
 			$(call message,LNK,$@)
-			$(TGT_LD) $(LFLAGS) $^ -o $@
+			$(TGT_LD) $(LFLAGS) $^ $(ARCH_LFLAGS) -o $@
+			$(call message,DBG,$(DBG))
+			$(TGT_OC) --only-keep-debug $@ $(DBG)
+			$(TGT_OC) --strip-all $@
 
 $(ELF):			$(HYP)
 			$(call message,ELF,$@)
@@ -167,12 +180,16 @@ $(BLD_DIR):
 			$(call message,DIR,$@)
 			@$(MKDIR) $@
 
+$(OBJ_DIR):
+			$(call message,OBJ,$@)
+			@$(MKDIR) $@
+
 Makefile.conf:
 			$(call message,CFG,$@)
 			@cp $@.example $@
 
 $(DIG):			$(MFL) | $(BLD_DIR) tool_hst_cc
-$(OBJ):			$(MFL) | $(BLD_DIR) tool_tgt_cc
+$(OBJ):			$(MFL) | $(OBJ_DIR) tool_tgt_cc
 
 # Zap old-fashioned suffixes
 .SUFFIXES:
@@ -181,12 +198,12 @@ $(OBJ):			$(MFL) | $(BLD_DIR) tool_tgt_cc
 
 clean:
 			$(call message,CLN,$@)
-			$(RM) $(DIG) $(OBJ) $(HYP) $(ELF) $(BIN) $(OBJ_DEP)
+			$(RM) $(DIG) $(OBJ) $(HYP) $(DBG) $(MAP) $(ELF) $(BIN) $(OBJ_DEP)
 
 install:		$(foreach d,$(INS_DIR),install-to-$(subst :,@,$(d))) | $(DIG)
 			@echo "Section Sizes for $(HYP)"
 			@$(TGT_SZ) $(HYP)
-ifeq ($(ARCH),x86_64)
+ifeq ($(INSTALL_INTEGRITY),yes)
 			@echo "Reference Integrity Measurements for $(HYP)"
 			@echo $(shell $(DIG) $(HYP) | sha1sum)   "SHA1-160"
 			@echo $(shell $(DIG) $(HYP) | sha256sum) "SHA2-256"
@@ -195,7 +212,10 @@ ifeq ($(ARCH),x86_64)
 endif
 
 run:			$(ELF)
-			$(RUN) $<
+			$(RUN) -kernel $<
+
+debug:			$(ELF)
+			$(RUN) -s -S -kernel $<
 
 tool_hst_cc:
 			$(call tools,HST_CC)

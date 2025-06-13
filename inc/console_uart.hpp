@@ -64,10 +64,12 @@ class Console_uart : protected Console
             enable();
         }
 
+#ifdef FEATURE_acpi
         [[nodiscard]] bool using_regs (Acpi_gas const &r) const override final
         {
             return (r.asid == Acpi_gas::Asid::MEM && r.addr == regs.mem) || (r.asid == Acpi_gas::Asid::PIO && r.addr == regs.pio);
         }
+#endif
 
     protected:
         static constexpr unsigned baudrate { 115'200 };
@@ -100,10 +102,12 @@ class Console_uart : protected Console
             return true;
         }
 
+#ifdef FEATURE_acpi
         [[nodiscard]] bool setup_regs (Acpi_gas const &r) override final
         {
             return setup (Regs { .mem = (r.asid == Acpi_gas::Asid::MEM) * r.addr, .pio = static_cast<port_t>((r.asid == Acpi_gas::Asid::PIO) * r.addr), .shl = static_cast<uint8_t>(bit_scan_lsb (r.bits) - 3) });
         }
+#endif
 
         explicit Console_uart (unsigned c) : clock { c } {}
 };

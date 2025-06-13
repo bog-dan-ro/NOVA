@@ -20,7 +20,9 @@
  * GNU General Public License version 2 for more details.
  */
 
+#ifdef FEATURE_acpi
 #include "acpi.hpp"
+#endif
 #include "cos.hpp"
 #include "counter.hpp"
 #include "dc.hpp"
@@ -527,6 +529,7 @@ void Ec::sys_ctrl_hw (Ec *const self)
             self->sys_finish_status (Cos::cfg_qos (static_cast<uint8_t>(r.desc())));
 
         case 0:             // S-State Transition
+#ifdef FEATURE_acpi
             Acpi_fixed::Transition t { static_cast<uint16_t>(BIT (15) | r.desc()) };
 
             if (!Acpi_fixed::supported (t)) [[unlikely]]
@@ -534,6 +537,7 @@ void Ec::sys_ctrl_hw (Ec *const self)
 
             if (!Acpi::set_transition (t)) [[unlikely]]
                 self->sys_finish_status (Status::ABORTED);
+#endif
 
             Interrupt::send_exc (Interrupt::Request::RKE);
 

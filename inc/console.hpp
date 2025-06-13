@@ -22,7 +22,9 @@
 #pragma once
 
 #include <stdarg.h>
+#ifdef FEATURE_acpi
 #include "acpi_gas.hpp"
+#endif
 #include "debug.hpp"
 #include "initprio.hpp"
 #include "list.hpp"
@@ -75,8 +77,10 @@ class Console : public List<Console>
         [[nodiscard]] virtual bool fini() { return true; }
 
         [[nodiscard]] virtual bool match_dbgp (Debug::Type, Debug::Subtype) const { return false; }
+#ifdef FEATURE_acpi
         [[nodiscard]] virtual bool using_regs (Acpi_gas const &) const            { return false; }
         [[nodiscard]] virtual bool setup_regs (Acpi_gas const &)                  { return false; }
+#endif
 
         void enable()
         {
@@ -105,6 +109,7 @@ class Console : public List<Console>
             }
         }
 
+#ifdef FEATURE_acpi
         static void bind (Debug::Type t, Debug::Subtype s, Acpi_gas const &r)
         {
             if (!r.addr || r.bits < 8) [[unlikely]]
@@ -122,4 +127,5 @@ class Console : public List<Console>
                 if (d->match_dbgp (t, s) && d->setup_regs (r))
                     return;
         }
+#endif
 };
