@@ -19,8 +19,9 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  * GNU General Public License version 2 for more details.
  */
-
+#ifdef FEATURE_acpi
 #include "acpi.hpp"
+#endif
 #include "console_mbuf.hpp"
 #include "event.hpp"
 #include "hip.hpp"
@@ -34,7 +35,9 @@
 #include "space_pio.hpp"
 #include "stc.hpp"
 #include "stdio.hpp"
+#ifdef FEATURE_acpi
 #include "uefi.hpp"
+#endif
 
 extern Hip MHIP_HVAS;
 
@@ -42,7 +45,9 @@ Hip *Hip::hip { reinterpret_cast<Hip *>(&MHIP_HVAS) };
 
 void Hip::build (uint64_t root_s, uint64_t root_e)
 {
+#ifdef FEATURE_uefi
     auto const uefi { &Uefi::info };
+#endif
 
     signature       = Signature::u32 ("NOVA");
     length          = sizeof (*this);
@@ -52,6 +57,7 @@ void Hip::build (uint64_t root_s, uint64_t root_e)
     mbuf_e_addr     = Console_mbuf::size() + mbuf_p_addr;
     root_p_addr     = root_s;
     root_e_addr     = root_e;
+#if defined(FEATURE_uefi) && defined(FEATURE_acpi)
     acpi_rsdp_addr  = uefi->tbl.rsdp ? uefi->tbl.rsdp : ~0ULL;
     fbuf_addr       = uefi->gfx.addr;
     fbuf_size       = uefi->gfx.size;
@@ -63,6 +69,7 @@ void Hip::build (uint64_t root_s, uint64_t root_e)
     uefi_mmap_size  = uefi->mem.msiz;
     uefi_desc_size  = uefi->mem.dsiz;
     uefi_desc_vers  = uefi->mem.dver;
+#endif
     tmr_frq         = Stc::freq;
     sbw_obj         = Space_obj::sbw;
     sbw_hst         = Space_hst::sbw;
@@ -87,8 +94,10 @@ void Hip::build (uint64_t root_s, uint64_t root_e)
     trace (TRACE_ROOT, "INFO: NOVA: %#018lx-%#018lx", nova_p_addr, nova_e_addr);
     trace (TRACE_ROOT, "INFO: MBUF: %#018lx-%#018lx", mbuf_p_addr, mbuf_e_addr);
     trace (TRACE_ROOT, "INFO: ROOT: %#018lx-%#018lx", root_p_addr, root_e_addr);
+#if defined(FEATURE_uefi) && defined(FEATURE_acpi)
     trace (TRACE_ROOT, "INFO: ACPI: %#lx", acpi_rsdp_addr);
     trace (TRACE_ROOT, "INFO: UEFI: %#lx %u %u %u", uefi_mmap_addr, uefi_mmap_size, uefi_desc_size, uefi_desc_vers);
+#endif
     trace (TRACE_ROOT, "INFO: FREQ: %lu Hz", tmr_frq);
     trace (TRACE_ROOT, "INFO: SBW#: OBJ:%u HST:%u GST:%u DMA:%u PIO:%u MSR:%u", sbw_obj, sbw_hst, sbw_gst, sbw_dma, sbw_pio, sbw_msr);
     trace (TRACE_ROOT, "INFO: HST#: %3u + %u", sel_hst_arch, sel_hst_nova);

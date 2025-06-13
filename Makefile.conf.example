@@ -28,32 +28,6 @@ ARCH		?= x86_64
 # Permitted values are listed in README.md
 BOARD		?= acpi
 
-# Configure compiler type
-# Permitted values are: gcc
-COMP		?= gcc
-
-# Configure control-flow protection
-# Permitted values are: none, branch, return, full
-CFP		?= none
-
-# Configure build directory
-BLD_DIR		?= build-$(ARCH)
-
-# Configure install directory
-INS_DIR		?= /home/tftp/nova
-
-# Configure cross-toolchain prefix (see README.md)
-PREFIX_aarch64	?= # set your own, e.g. /opt/aarch64-linux/bin/aarch64-linux-
-PREFIX_x86_64	?= # set your own, e.g. /opt/x86_64-linux/bin/x86_64-linux-
-
-# Configure architecture-specific ELF image tweaks
-H2E_aarch64	?= ln -frs
-H2E_x86_64	?= $(TGT_OC) -O elf32-i386
-
-# Configure architecture-specific BIN image tweaks
-H2B_aarch64	?= $(TGT_OC) -O binary
-H2B_x86_64	?= $(TGT_OC) -O binary
-
-# Configure architecture-specific run targets
-RUN_aarch64	?= qemu-system-aarch64 -m 512 -smp 4 -no-reboot -display none -serial mon:stdio -cpu max -M virt,virtualization=on,secure=off,gic-version=2,iommu=smmuv3 -kernel
-RUN_x86_64	?= qemu-system-x86_64  -m 512 -smp 4 -no-reboot -display none -serial mon:stdio -cpu host,vmx -M q35,accel=kvm,kernel-irqchip=split -enable-kvm -device intel-iommu,intremap=on -kernel
+#############################################################################
+# Other configuration options were moved to confs/archs and confs/boards.   #
+#############################################################################

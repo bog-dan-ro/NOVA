@@ -24,24 +24,32 @@
 # Defaults
 ARCH	?= x86_64
 BOARD	?= acpi
-COMP	?= gcc
-CFP	?= none
+
+# Configuration
+ifneq ("$(wildcard conf/archs/common.conf)","")
+include conf/archs/common.conf
+else
+$(error conf/archs/common.conf is missing)
+endif
+
+ifneq ("$(wildcard conf/archs/$(ARCH).conf)","")
+include conf/archs/$(ARCH).conf
+else
+$(error conf/archs/$(ARCH).conf is not a valid architecture config)
+endif
 
 # Tools
 INSTALL	?= install -m 644
 MKDIR	?= mkdir -p
 ifeq ($(COMP),gcc)
 HST_CC	?= g++
-TGT_CC	:= $(PREFIX_$(ARCH))g++
-TGT_LD	:= $(PREFIX_$(ARCH))ld
-TGT_OC	:= $(PREFIX_$(ARCH))objcopy
-TGT_SZ	:= $(PREFIX_$(ARCH))size
+TGT_CC	:= $(PREFIX)g++
+TGT_LD	:= $(PREFIX)ld
+TGT_OC	:= $(PREFIX)objcopy
+TGT_SZ	:= $(PREFIX)size
 else
 $(error $(COMP) is not a valid compiler type)
 endif
-H2E	:= $(H2E_$(ARCH))
-H2B	:= $(H2B_$(ARCH))
-RUN	:= $(RUN_$(ARCH))
 
 # In-place editing works differently between GNU/BSD sed
 SEDI	:= $(shell if sed --version 2>/dev/null | grep -q GNU; then echo "sed -i"; else echo "sed -i ''"; fi)
@@ -51,6 +59,20 @@ CMD_DIR	:= cmd
 SRC_DIR	:= src/$(ARCH) src
 INC_DIR	:= inc/$(ARCH) inc
 BLD_DIR	?= build-$(ARCH)
+
+# Configure board feature set
+ifneq ("$(wildcard conf/boards/$(ARCH)/$(BOARD).conf)","")
+-include conf/boards/$(ARCH)/$(BOARD).conf
+$(foreach feature,$(FEATURES), \
+	$(eval INC_DIR += inc/$(feature)) \
+	$(eval INC_DIR += inc/$(ARCH)/$(feature)) \
+	$(eval SRC_DIR += src/generic/$(feature)) \
+	$(eval SRC_DIR += src/$(ARCH)/$(feature)) \
+	$(eval DEFINES += FEATURE_$(feature)))
+else
+$(error conf/boards/$(ARCH)/$(BOARD).conf is not a valid board type)
+endif
+
 
 # Patterns
 PAT_CMD	:= $(BLD_DIR)/%

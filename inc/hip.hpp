@@ -36,12 +36,16 @@ class Hip final
         uint64_t        nova_p_addr, nova_e_addr;                                       // 0x8
         uint64_t        mbuf_p_addr, mbuf_e_addr;                                       // 0x18
         uint64_t        root_p_addr, root_e_addr;                                       // 0x28
+#if defined(FEATURE_acpi)
         uint64_t        acpi_rsdp_addr;                                                 // 0x38
         uint64_t        fbuf_addr, fbuf_size;                                           // 0x40
         uint32_t        fbuf_pixel, fbuf_pitch, fbuf_res_x, fbuf_res_y;                 // 0x50
         uint64_t        uefi_mmap_addr;                                                 // 0x60
         uint32_t        uefi_mmap_size;                                                 // 0x68
         uint16_t        uefi_desc_size, uefi_desc_vers;                                 // 0x6c
+#else
+        uint8_t         _pad[0x38];                                                     // 0x38
+#endif
         uint64_t        tmr_frq;                                                        // 0x70
         uint8_t         sbw_obj, sbw_hst, sbw_gst, sbw_dma, sbw_pio, sbw_msr, sbw_r[2]; // 0x78
         uint8_t         mco_obj, mco_hst, mco_gst, mco_dma, mco_pio, mco_msr, mco_r[2]; // 0x80
