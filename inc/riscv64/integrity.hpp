@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * Integrity Measurement
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,20 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "hash.hpp"
 
-class Wait final
+/*
+ * RISC-V Integrity Measurement stub
+ *
+ * Full TPM/attestation support would be added later.
+ */
+class Integrity final
 {
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    private:
+        static bool extend (Hash_sha1_160 const &, Hash_sha2_256 const &, Hash_sha2_384 const &, Hash_sha2_512 const &) { return false; }
 
-            return true;
-        }
+    public:
+        static inline constinit uint64_t root_phys { 0 }, root_size { 0 };
+
+        static bool measure();
 };

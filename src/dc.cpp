@@ -16,6 +16,7 @@
  */
 
 #include "dc.hpp"
+#include "pd.hpp"
 #include "stdio.hpp"
 
 Dc::Dc (Refptr<Pd> &ref_pd, uint64_t t, uint64_t d, uint64_t i) : Kobject { Kobject::Type::DC }, Dc_state { t, d, i }, pd { std::move (ref_pd) }

@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * Page Table Templates
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,7 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "ptab_hpt.hpp"
 
-class Wait final
-{
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
-
-            return true;
-        }
-};
+// Instantiate only Hpt for RISC-V (no virtualization, no DPT/NPT)
+template class Ptab<Hpt, uint64_t, uint64_t>;

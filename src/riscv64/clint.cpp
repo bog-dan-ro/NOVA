@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * CLINT (Core-Local Interruptor)
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -15,21 +15,12 @@
  * GNU General Public License version 2 for more details.
  */
 
-#pragma once
+#include "clint.hpp"
+#include "stdio.hpp"
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
-
-class Wait final
+void Clint::init()
 {
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    clint_base = Board::clint.mmio;
 
-            return true;
-        }
-};
+    trace (TRACE_INTR, "CLINT: %#lx", clint_base);
+}

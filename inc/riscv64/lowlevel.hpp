@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * Low-Level Functions
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,18 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "compiler.hpp"
 
-class Wait final
+static inline void pause()
 {
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    // RISC-V doesn't have a dedicated pause instruction in the base ISA
+    // The Zihintpause extension adds PAUSE (encoded as FENCE with special operands)
+    asm volatile ("fence" : : : "memory");
+}
 
-            return true;
-        }
-};
+[[noreturn]] static inline void shutdown()
+{
+    for (;;)
+        asm volatile ("wfi" : : : "memory");
+}
+

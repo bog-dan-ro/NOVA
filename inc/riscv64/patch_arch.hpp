@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * Patch (Runtime Code Patching) - RISC-V
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,15 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+// RISC-V NOP instruction: ADDI x0, x0, 0 = 0x00000013
+// For compressed: C.NOP = 0x0001 (2 bytes)
+// Using uncompressed NOP for simplicity
+#define NOP_LEN         4
+#define NOP_OPC         0x00000013
 
-class Wait final
+class Patch_arch
 {
     public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
-
-            return true;
-        }
+        static void init() {}
 };
+

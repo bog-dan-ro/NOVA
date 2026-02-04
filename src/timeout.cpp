@@ -17,6 +17,7 @@
  */
 
 #include "assert.hpp"
+#include "stc.hpp"
 #include "timeout.hpp"
 #include "timer.hpp"
 

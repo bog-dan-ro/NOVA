@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * System-Call Interface
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,6 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
-
-class Wait final
-{
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
-
-            return true;
-        }
-};
+// Template instantiation for exception handling
+// No virtualization, so no ret_user_vmexit
+template void Ec::send_msg<Ec_arch::ret_user_exception> (Ec *);

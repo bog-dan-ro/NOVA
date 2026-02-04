@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * Console: NS16550 UART
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,25 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "console.hpp"
+#include "debug.hpp"
+#include "sbi.hpp"
 
-class Wait final
+class Console_sbi final : private Console
 {
-    public:
-        static bool until (uint32_t ms, auto const &func)
+    private:
+        static Console_sbi sbi[];
+        bool outc(char  c) final
         {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+            return Sbi::putc(c).error == Sbi::SUCCESS;
+        }
 
-            return true;
+    protected:
+        explicit Console_sbi()
+            : Console{}
+        {
         }
 };
+
+
+

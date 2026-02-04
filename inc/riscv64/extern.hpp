@@ -1,7 +1,7 @@
 /*
- * Completion Wait
+ * External Symbols
  *
- * Copyright (C) 2019-2026 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
  * This file is part of the NOVA microhypervisor.
  *
@@ -17,19 +17,13 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "types.hpp"
 
-class Wait final
-{
-    public:
-        static bool until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+extern char GIT_VER, NOVA_HPAS, NOVA_HPAE, PTAB_HPAS, PT2H_HPAS, PT1H_HPAS, KMEM_HVAS, DSTK_TOP, STACK;
+extern char __bss_start, __bss_end;
+extern void (*CTORS_S[])(), (*CTORS_E[])(), (*CTORS_C[])(), (*CTORS_L[])();
 
-            return true;
-        }
-};
+// Boot parameters from start.S
+extern uint64_t boot_hartid;
+extern uint64_t boot_dtb;
+
