@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Device Context (DC) State
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -17,19 +17,24 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "types.hpp"
 
-class Wait final
+class Smmu;
+
+/*
+ * RISC-V minimal Device Context State
+ *
+ * Full IOMMU support (e.g., RISC-V IOMMU) would be added later.
+ */
+class Dc_state
 {
     public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+        uint32_t const  did     { 0 };
+        uint32_t const  sid     { 0 };
+        Smmu * const    smmu    { nullptr };    // No IOMMU support
 
-            return true;
-        }
+    protected:
+        explicit Dc_state (uint64_t, uint64_t, uint64_t) {}
+
+        ~Dc_state() = default;
 };

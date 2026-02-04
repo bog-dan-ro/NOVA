@@ -34,6 +34,8 @@
 #include "sm.hpp"
 #include "space_hst.hpp"
 #include "space_obj.hpp"
+#include "space_pio.hpp"
+#include "stc.hpp"
 #include "stdio.hpp"
 #include "timer.hpp"
 

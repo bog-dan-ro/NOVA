@@ -22,11 +22,14 @@
 #ifdef FEATURE_acpi
 #include "acpi.hpp"
 #endif
+#include "checksum.hpp"
 #include "console_mbuf.hpp"
 #include "event.hpp"
+#include "extern.hpp"
 #include "hip.hpp"
 #include "kmem.hpp"
 #include "multiboot.hpp"
+#include "signature.hpp"
 #include "space_dma.hpp"
 #include "space_gst.hpp"
 #include "space_hst.hpp"

@@ -37,6 +37,7 @@ ad hoc by passing the applicable `ARCH`, `BOARD` and `PREFIX_` variables to
 the invocation of `make` as described below.
 
 - `PREFIX_aarch64` sets the path for an **ARMv8-A** cross-toolchain
+- `PREFIX_riscv64` sets the path for a **RISC-V (64bit)** cross-toolchain
 - `PREFIX_x86_64` sets the path for an **x86 (64bit)** cross-toolchain
 
 For example, if the ARMv8-A cross-toolchain is located at
@@ -77,6 +78,16 @@ For CPUs with ARMv8-A architecture and boards with
 | Xilinx Zynq Ultrascale+ MPSoC CG      | `make ARCH=aarch64 BOARD=xilinx_zynq_cg`     |
 | Xilinx Zynq Ultrascale+ MPSoC Ultra96 | `make ARCH=aarch64 BOARD=xilinx_zynq_u96`    |
 | Xilinx Zynq Ultrascale+ MPSoC ZCU102  | `make ARCH=aarch64 BOARD=xilinx_zynq_zcu102` |
+
+#### RISC-V (64bit)
+
+For CPUs with RISC-V 64-bit architecture (RV64IMAFDC) and boards with
+Flattened Device Tree (FDT). The Hypervisor extension (H) is optional but
+required for full virtualization support.
+
+| **Platform**                          | **Build Command**                            |
+| :------------------------------------ | :------------------------------------------- |
+| QEMU Virt Platform                    | `make ARCH=riscv64 BOARD=qemu`               |
 
 #### x86 (64bit)
 

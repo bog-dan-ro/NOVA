@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Event Counters
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -17,19 +17,31 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "atomic.hpp"
+#include "intid.hpp"
+#include "kmem.hpp"
 
-class Wait final
+class Counter final
 {
-    public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    private:
+        Atomic<unsigned> val { 0 };
 
-            return true;
+    public:
+        static Counter req[Intid::NUM_IPI]  CPULOCAL;
+        static Counter loc[Intid::NUM_LOC]  CPULOCAL;
+        static Counter schedule             CPULOCAL;
+        static Counter helping              CPULOCAL;
+
+        ALWAYS_INLINE
+        inline void inc()
+        {
+            val = val + 1;
+        }
+
+        ALWAYS_INLINE
+        inline unsigned get (cpu_t cpu) const
+        {
+            return *Kmem::loc_to_glb (cpu, &val);
         }
 };
+

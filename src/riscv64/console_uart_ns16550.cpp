@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Console: NS16550 UART
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -15,21 +15,9 @@
  * GNU General Public License version 2 for more details.
  */
 
-#pragma once
+#include "console_uart_ns16550.hpp"
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
-
-class Wait final
-{
-    public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
-
-            return true;
-        }
+INIT_PRIORITY (PRIO_CONSOLE) Console_uart_ns16550 Console_uart_ns16550::uart[] {
+    Console_uart_ns16550 { Board::uart[0].mmio, Board::uart[0].clock },
 };
+

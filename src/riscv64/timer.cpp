@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Timer
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -15,21 +15,25 @@
  * GNU General Public License version 2 for more details.
  */
 
-#pragma once
-
-#include "lowlevel.hpp"
-#include "stc.hpp"
 #include "timer.hpp"
+#include "arch.hpp"
+#include "console.hpp"
 
-class Wait final
+uint64_t Timer::freq;
+
+void Timer::init()
 {
-    public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    // RISC-V timer frequency is typically provided by device tree
+    // or can be queried via SBI (timebase-frequency)
+    // Default to 10MHz for QEMU virt machine
+    freq = 10'000'000;
 
-            return true;
-        }
-};
+    // Enable timer interrupt
+    asm volatile ("csrs sie, %0" : : "r" (BIT (5)));  // STIE
+
+    // Set initial timer compare far in the future
+    set_dln (time() + freq);
+
+    Console::print ("TIMER: RISC-V timer @ %lu Hz\n", freq);
+}
+

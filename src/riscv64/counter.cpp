@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Event Counters
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -15,21 +15,10 @@
  * GNU General Public License version 2 for more details.
  */
 
-#pragma once
+#include "counter.hpp"
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+Counter Counter::req[Intid::NUM_IPI]    CPULOCAL;
+Counter Counter::loc[Intid::NUM_LOC]    CPULOCAL;
+Counter Counter::schedule               CPULOCAL;
+Counter Counter::helping                CPULOCAL;
 
-class Wait final
-{
-    public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
-
-            return true;
-        }
-};

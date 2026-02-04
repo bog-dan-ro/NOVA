@@ -53,6 +53,10 @@
         #define CPULOCAL                __attribute__((section (".cpulocal,\"w\",@nobits//")))
         #define CPULOCAL_HOT            __attribute__((section (".cpulocal.hot,\"w\",@nobits//")))
         #define EFICALL
+    #elif defined (__riscv)
+        #define CPULOCAL                __attribute__((section (".cpulocal,\"w\",@nobits#")))
+        #define CPULOCAL_HOT            __attribute__((section (".cpulocal.hot,\"w\",@nobits#")))
+        #define EFICALL
     #endif
         #define FORMAT(X,Y)             __attribute__((format (printf, (X),(Y))))
         #define INIT_PRIORITY(X)        __attribute__((init_priority((X))))

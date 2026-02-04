@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * PIO Space
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -17,19 +17,26 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
+#include "space.hpp"
 
-class Wait final
+/*
+ * RISC-V does not have a separate PIO space - all I/O is memory-mapped.
+ * This is a stub to satisfy interface requirements.
+ */
+class Space_pio final : public Space
 {
-    public:
-        static auto until (uint32_t ms, auto const &func)
-        {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+    private:
+        void collect() override final {}
 
-            return true;
+    public:
+        [[nodiscard]] auto delegate (Space_pio const *, unsigned long, unsigned long, unsigned, unsigned) { return Status::BAD_FTR; }
+
+        [[nodiscard]] static Space_pio *create (Status &s, Pd *, bool)
+        {
+            s = Status::BAD_FTR;
+
+            return nullptr;
         }
+
+        void destroy() override final {}
 };

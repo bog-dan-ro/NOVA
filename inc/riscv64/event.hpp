@@ -1,5 +1,5 @@
 /*
- * Completion Wait
+ * Event Selectors
  *
  * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
  *
@@ -17,19 +17,23 @@
 
 #pragma once
 
-#include "lowlevel.hpp"
-#include "stc.hpp"
-#include "timer.hpp"
-
-class Wait final
+class Event final
 {
     public:
-        static auto until (uint32_t ms, auto const &func)
+        enum Selector
         {
-            for (uint64_t const t { Stc::ms_to_ticks (ms) }, b { Timer::time() }; !func(); pause())
-                if (Timer::time() - b > t) [[unlikely]]
-                    return false;
+            NONE        = -1,
+            STARTUP     =  0,
+            RECALL      =  1,
+            VTIMER      =  2,       // Virtual timer event
+        };
 
-            return true;
-        }
+        // Number of host arch-specific events (PLIC-based)
+        static constexpr auto hst_arch  { 1024 };
+
+        // Number of guest arch-specific events (minimal)
+        static constexpr auto gst_arch  { 64 };
+
+        static constexpr auto hst_max   { 1 + RECALL };
+        static constexpr auto gst_max   { 1 + VTIMER };
 };

@@ -19,6 +19,7 @@
 
 #include "dc_state.hpp"
 #include "kobject.hpp"
+#include "pd.hpp"
 #include "status.hpp"
 
 class Dc final : public Kobject, public Dc_state
