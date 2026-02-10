@@ -85,11 +85,7 @@ OBJ	:= $(patsubst %.ld,$(PAT_OBJ), $(patsubst %.S,$(PAT_OBJ), $(patsubst %.cpp,$
 OBJ_DEP	:= $(OBJ:%.o=%.d)
 
 DIG	:= $(BLD_DIR)/digest
-ifeq ($(ARCH),aarch64)
-HYP	:= $(BLD_DIR)/$(ARCH)-$(BOARD)-nova
-else
-HYP	:= $(BLD_DIR)/$(ARCH)-nova
-endif
+HYP	:= $(HYP_NAMING)
 ELF	:= $(HYP).elf
 BIN	:= $(HYP).bin
 
@@ -113,16 +109,9 @@ VPATH	:= $(SRC_DIR)
 # Optimization options
 DFLAGS	:= -MP -MMD -pipe
 OFLAGS	:= -Os
-ifeq ($(ARCH),aarch64)
-MFLAGS	:= -march=armv8-a -mcmodel=large -mgeneral-regs-only -mno-outline-atomics -mstrict-align
-DEFINES	+= BOARD_$(BOARD)
-else ifeq ($(ARCH),x86_64)
-MFLAGS	:= -Wa,--divide,--noexecstack -march=x86-64-v2 -mcmodel=kernel -mgeneral-regs-only -mno-red-zone
-else
-$(error $(ARCH) is not a valid architecture)
-endif
 
 # Preprocessor options
+DEFINES	+= $(ARCH_DEFINES)
 PFLAGS	:= $(addprefix -D, $(DEFINES))
 PFLAGS	+= $(addprefix -I, $(INC_DIR))
 
@@ -140,10 +129,7 @@ WFLAGS	+= $(call check,-Wnrvo)
 # Warning options added in gcc-15
 WFLAGS	+= $(call check,-Wleading-whitespace=spaces)
 WFLAGS	+= $(call check,-Wtrailing-whitespace=any)
-
-ifeq ($(ARCH),aarch64)
-WFLAGS	+= $(call check,-Wpedantic)
-endif
+WFLAGS	+= $(ARCH_WFLAGS)
 
 # Compiler flags
 CFLAGS	:= $(PFLAGS) $(DFLAGS) $(MFLAGS) $(FFLAGS) $(OFLAGS) $(WFLAGS)
@@ -206,7 +192,7 @@ clean:
 install:		$(foreach d,$(INS_DIR),install-to-$(subst :,@,$(d))) | $(DIG)
 			@echo "Section Sizes for $(HYP)"
 			@$(TGT_SZ) $(HYP)
-ifeq ($(ARCH),x86_64)
+ifeq ($(INSTALL_INTEGRITY),yes)
 			@echo "Reference Integrity Measurements for $(HYP)"
 			@echo $(shell $(DIG) $(HYP) | sha1sum)   "SHA1-160"
 			@echo $(shell $(DIG) $(HYP) | sha256sum) "SHA2-256"
