@@ -53,7 +53,7 @@
         #define CPULOCAL                __attribute__((section (".cpulocal,\"w\",@nobits//")))
         #define CPULOCAL_HOT            __attribute__((section (".cpulocal.hot,\"w\",@nobits//")))
         #define EFICALL
-    #elif defined (__riscv)
+    #elif defined (__riscv) || defined (__i386__)
         #define CPULOCAL                __attribute__((section (".cpulocal,\"w\",@nobits#")))
         #define CPULOCAL_HOT            __attribute__((section (".cpulocal.hot,\"w\",@nobits#")))
         #define EFICALL

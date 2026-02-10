@@ -1,0 +1,28 @@
+/*
+ * Task State Segment (TSS): x86_32
+ *
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
+ *
+ * This file is part of the NOVA microhypervisor.
+ *
+ * NOVA is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * NOVA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License version 2 for more details.
+ */
+
+#include "memory.hpp"
+#include "selectors.hpp"
+#include "tss.hpp"
+
+ALIGNED(8) Tss Tss::run;
+
+void Tss::build()
+{
+    run.ss0  = SEL_KERN_DATA;
+    run.iobm = static_cast<uint16_t>(MMAP_SPC_PIO - reinterpret_cast<uintptr_t>(&run));
+}

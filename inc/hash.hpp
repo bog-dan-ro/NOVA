@@ -104,7 +104,11 @@ class Sha
             // Zero-pad up to the length info
             memset (b + s, 0, res_size - s);
 
+#if __SIZEOF_POINTER__ >= 8
             using L = std::conditional<sizeof (T) == sizeof (uint64_t), uint128_t, uint64_t>::type;
+#else
+            using L = uint64_t;
+#endif
 
             // Append the length info in bits to the last block
             *reinterpret_cast<Unaligned_be<L> *>(b + res_size) = 8 * len;

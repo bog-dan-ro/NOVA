@@ -94,5 +94,7 @@ static_assert (type_msbn<uint32_t>() == 31);
 static_assert (type_msbn<uint64_t>() == 63);
 static_assert (bit_scan_lsb (0) == -1);
 static_assert (bit_scan_msb (0) == -1);
+#if __SIZEOF_POINTER__ >= 8
 static_assert (bit_scan_lsb (BIT64_RANGE (55, 5)) == 5);
 static_assert (bit_scan_msb (BIT64_RANGE (55, 5)) == 55);
+#endif

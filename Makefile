@@ -140,7 +140,7 @@ LFLAGS	:= --defsym=GIT_VER=0x$(call gitrv) --gc-sections --warn-common -static -
 # Rules
 $(HYP):			$(OBJ)
 			$(call message,LNK,$@)
-			$(TGT_LD) $(LFLAGS) $^ -o $@
+			$(TGT_LD) $(LFLAGS) $^ $(ARCH_LFLAGS) -o $@
 
 $(ELF):			$(HYP)
 			$(call message,ELF,$@)

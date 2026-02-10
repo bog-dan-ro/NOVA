@@ -198,8 +198,8 @@ void Ec::create_root()
         auto virt { aligned_dn (PAGE_SIZE (0), p->v_addr) };
         auto size { aligned_up (PAGE_SIZE (0), p->v_addr + p->f_size) - virt };
 
-        root_s = min (root_s, phys);
-        root_e = max (root_e, phys + size);
+        root_s = min (root_s, static_cast<uint64_t>(phys));
+        root_e = max (root_e, static_cast<uint64_t>(phys + size));
 
         for (unsigned o; size; size -= BITN (o), phys += BITN (o), virt += BITN (o))
             if (hst->delegate (&Space_hst::nova, phys >> PAGE_BITS, virt >> PAGE_BITS, (o = aligned_order (size, phys, virt)) - PAGE_BITS, perm, Memattr::ram()) != Status::SUCCESS) {

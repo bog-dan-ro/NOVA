@@ -1,5 +1,5 @@
 /*
- * Executable and Linkable Format (ELF)
+ * Executable and Linkable Format (ELF): x86_32
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
  * Economic rights: Technische Universitaet Dresden (Germany)
@@ -57,18 +57,25 @@ struct Eh
     Type            type;
     Machine         machine;
     uint32_t        version;
-    uintptr_t       entry, ph_offset, sh_offset;
+    uint32_t        entry, ph_offset, sh_offset;
     uint32_t        flags;
     uint16_t        eh_size, ph_size, ph_count, sh_size, sh_count, strtab;
 
     [[nodiscard]] bool valid (Machine m) const
     {
-        return ei_magic == Signature::u32 ("\x7f""ELF") && ei_class == Class::E64 && ei_data == Data::LSB && ei_version == 1 && type == Type::EXEC && machine == m;
+        return ei_magic == Signature::u32 ("\x7f""ELF") && ei_class == Class::E32 && ei_data == Data::LSB && ei_version == 1 && type == Type::EXEC && machine == m;
     }
 };
 
+// ELF32 Program Header
 struct Ph
 {
-    uint32_t        type, flags;
-    uint64_t        f_offs, v_addr, p_addr, f_size, m_size, align;
+    uint32_t        type;
+    uint32_t        f_offs;
+    uint32_t        v_addr;
+    uint32_t        p_addr;
+    uint32_t        f_size;
+    uint32_t        m_size;
+    uint32_t        flags;
+    uint32_t        align;
 };
