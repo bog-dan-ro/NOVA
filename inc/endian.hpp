@@ -27,7 +27,9 @@ template<typename T, bool B> class Aligned
     private:
         T val { 0 };
 
+#if __SIZEOF_POINTER__ >= 8
         static constexpr auto bswap (uint128_t v) { return B ? __builtin_bswap128 (v) : v; }
+#endif
         static constexpr auto bswap (uint64_t  v) { return B ? __builtin_bswap64  (v) : v; }
         static constexpr auto bswap (uint32_t  v) { return B ? __builtin_bswap32  (v) : v; }
         static constexpr auto bswap (uint16_t  v) { return B ? __builtin_bswap16  (v) : v; }

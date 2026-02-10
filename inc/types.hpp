@@ -29,7 +29,9 @@ using uint8_t       = __UINT8_TYPE__;
 using uint16_t      = __UINT16_TYPE__;
 using uint32_t      = __UINT32_TYPE__;
 using uint64_t      = __UINT64_TYPE__;
+#if __SIZEOF_POINTER__ >= 8
 using uint128_t     = __uint128_t;
+#endif
 
 // Pointer Types
 using uintptr_t     = __UINTPTR_TYPE__;

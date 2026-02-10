@@ -1,0 +1,30 @@
+/*
+ * Page Table Entry (x86_32)
+ *
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
+ *
+ * This file is part of the NOVA microhypervisor.
+ *
+ * NOVA is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * NOVA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License version 2 for more details.
+ */
+
+#pragma once
+
+#include "ptab.hpp"
+
+template<typename T, typename I, typename O> class Pte : public Ptab<T, I, O>::Entry
+{
+    using E = typename Ptab<T, I, O>::Entry;
+
+    public:
+        auto type (unsigned l) const { return E::val ? l && !(E::val & T::ATTR_S) ? E::Type::PTAB : E::Type::LEAF : E::Type::HOLE; }
+
+        static void publish() {}
+};

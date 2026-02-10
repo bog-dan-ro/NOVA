@@ -1,0 +1,77 @@
+/*
+ * PIO Space: x86_32
+ *
+ * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
+ * Economic rights: Technische Universitaet Dresden (Germany)
+ *
+ * Copyright (C) 2012-2013 Udo Steinberg, Intel Corporation.
+ * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
+ *
+ * This file is part of the NOVA microhypervisor.
+ *
+ * NOVA is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ *
+ * NOVA is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License version 2 for more details.
+ */
+
+#pragma once
+
+#include "bitmap_pio.hpp"
+#include "space_hst.hpp"
+
+class Space_pio final : public Space
+{
+    private:
+        Refptr<Space_hst> const hst;
+        Bitmap_pio *      const bmp;
+
+        static Space_pio nova;
+
+        Space_pio();
+
+        Space_pio (Refptr<Pd> &ref_pd, Refptr<Space_hst> &h, Bitmap_pio *b) : Space { Kobject::Subtype::PIO, ref_pd }, hst { std::move (h) }, bmp { b }
+        {
+            if (hst)
+                hst->update (MMAP_SPC_PIO, Kmem::ptr_to_phys (bmp), 1, Paging::R, Memattr::ram());
+        }
+
+        ~Space_pio()
+        {
+            if (hst)
+                hst->update (MMAP_SPC_PIO, 0, 1, Paging::NONE, Memattr::ram());
+
+            delete bmp;
+        }
+
+        void collect() override final
+        {
+            trace (TRACE_DESTROY, "KOBJ: PIO %p collected", static_cast<void *>(this));
+        }
+
+        [[nodiscard]] Paging::Permissions lookup (size_t) const;
+
+        void update (size_t, Paging::Permissions);
+
+    public:
+        static constexpr uint8_t sbw { bit_scan_msb (Bitmap_pio::bits) };
+        static constexpr uint8_t mco { sbw };
+
+        [[nodiscard]] Status delegate (Space_pio const *, size_t, size_t, unsigned, unsigned);
+
+        [[nodiscard]] auto get_phys() const { return Kmem::ptr_to_phys (bmp); }
+
+        [[nodiscard]] static Space_pio *create (Status &, Pd *, bool);
+
+        void destroy() override final;
+
+        static void access_ctrl (uint64_t base, size_t size, Paging::Permissions perm)
+        {
+            for (unsigned i { 0 }; i < size; i++)       // FIXME: Optimize
+                nova.update (base + i, perm);
+        }
+};
