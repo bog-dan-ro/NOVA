@@ -1,0 +1,47 @@
+# inc/riscv64/CMakeLists.txt — RISC-V 64-bit specific headers
+
+target_sources(nova PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/abi.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/arch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/barrier.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/board.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/board_qemu.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cache.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/clint.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_ns16550.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cos.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/counter.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpu.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/csr.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/dc_state.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ec_arch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entry.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/event.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/extern.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpu.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/hip_arch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/integrity.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/interrupt.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/intid.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/lowlevel.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memattr.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/memory.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/mtd_arch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/patch_arch.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/plic.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ptab_hpt.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ptab_pte.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ptab_tmp.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/regs.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sbi.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/smmu.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_dma.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_gst.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_hst.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_msr.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_pio.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/spinlock.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/syscall_tmp.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/timer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utcb_arch.hpp
+)
