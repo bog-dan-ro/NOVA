@@ -1,0 +1,69 @@
+{
+    "version": 8,
+    "configurePresets": [
+        {
+            "name": "x86_64-pc",
+            "displayName": "x86_64 / PC",
+            "description": "x86_64 PC with ACPI and UEFI",
+            "binaryDir": "${sourceDir}/build-x86_64",
+            "cacheVariables": {
+                "NOVA_ARCH":  "x86_64",
+                "NOVA_BOARD": "pc"
+            }
+        },
+        {
+            "name": "x86_32-pc",
+            "displayName": "x86_32 / PC",
+            "description": "x86_32 PC (minimal)",
+            "binaryDir": "${sourceDir}/build-x86_32",
+            "cacheVariables": {
+                "NOVA_ARCH":  "x86_32",
+                "NOVA_BOARD": "pc"
+            }
+        },
+        {
+            "name": "aarch64-qemu",
+            "displayName": "AArch64 / QEMU",
+            "description": "AArch64 QEMU with ACPI and UEFI",
+            "binaryDir": "${sourceDir}/build-aarch64",
+            "cacheVariables": {
+                "NOVA_ARCH":          "aarch64",
+                "NOVA_BOARD":         "qemu",
+                "CMAKE_CXX_COMPILER": "aarch64-linux-gnu-g++",
+                "CMAKE_ASM_COMPILER": "aarch64-linux-gnu-g++",
+                "CMAKE_LINKER":       "aarch64-linux-gnu-ld"
+            }
+        },
+        {
+            "name": "riscv64-qemu",
+            "displayName": "RISC-V 64 / QEMU",
+            "description": "RISC-V 64-bit QEMU (minimal)",
+            "binaryDir": "${sourceDir}/build-riscv64",
+            "cacheVariables": {
+                "NOVA_ARCH":          "riscv64",
+                "NOVA_BOARD":         "qemu",
+                "CMAKE_CXX_COMPILER": "riscv64-linux-gnu-g++",
+                "CMAKE_ASM_COMPILER": "riscv64-linux-gnu-g++",
+                "CMAKE_LINKER":       "riscv64-linux-gnu-ld"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "x86_64-pc",
+            "configurePreset": "x86_64-pc"
+        },
+        {
+            "name": "x86_32-pc",
+            "configurePreset": "x86_32-pc"
+        },
+        {
+            "name": "aarch64-qemu",
+            "configurePreset": "aarch64-qemu"
+        },
+        {
+            "name": "riscv64-qemu",
+            "configurePreset": "riscv64-qemu"
+        }
+    ]
+}

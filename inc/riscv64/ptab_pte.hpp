@@ -29,6 +29,7 @@ template<typename T, typename I, typename O> class Pte : public Ptab<T, I, O>::E
         // Otherwise it's a pointer to the next level page table
         auto type (unsigned l) const
         {
+            (void) l;
             constexpr uint64_t V_BIT { 1 };         // Valid bit
             constexpr uint64_t RWX_MASK { 0xe };    // R | W | X bits
 

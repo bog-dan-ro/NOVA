@@ -1,0 +1,46 @@
+# src/aarch64/CMakeLists.txt — AArch64 architecture sources
+
+target_sources(nova PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_fadt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_gtdt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_hest.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_iort.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_madt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/acpi_table_srat.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_cdns.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_imx.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_meson.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_mini.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_ns16550.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_pl011.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_scif.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/counter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ec_arch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ec_exc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/entry.S
+    ${CMAKE_CURRENT_SOURCE_DIR}/fdt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gicc.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gicd.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gich.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gicr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gits.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/hip_arch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/init.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/interrupt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ptab_hpt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/ptab_npt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/smc_arch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/smc_psci.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/smmu_v2.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/smmu_v3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_dma.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_gst.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/space_hst.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/start.S
+    ${CMAKE_CURRENT_SOURCE_DIR}/timer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/utcb_arch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/vmcb.cpp
+)
