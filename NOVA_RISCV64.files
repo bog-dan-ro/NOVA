@@ -1,6 +1,8 @@
 Makefile
 Makefile.conf
 Makefile.conf.example
+NOVA_RISCV64.cflags
+NOVA_RISCV64.cxxflags
 build_all.sh
 cmd/digest.cpp
 conf/archs/aarch64.cmake
@@ -55,6 +57,15 @@ conf/boards/x86_32/pc.cmake
 conf/boards/x86_32/pc.conf
 conf/boards/x86_64/pc.cmake
 conf/boards/x86_64/pc.conf
+doc/aarch64_boot_flow.md
+doc/charts.md
+doc/classes.md
+doc/hypervisor_linker_script.md
+doc/hypervisor_linker_script_detailed.md
+doc/memory.md
+doc/nova-microhypervisor-interface-specification.md
+doc/nova_microhypervisor_spec.md
+doc/specification.pdf
 inc/CMakeLists.txt
 inc/alignment.hpp
 inc/assert.hpp
