@@ -110,7 +110,8 @@ Space_obj *Pd::create_obj (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_OBJ) })) == Status::SUCCESS) [[likely]]
             return space_obj = o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     detach (Kobject::Subtype::OBJ);
@@ -132,7 +133,8 @@ Space_hst *Pd::create_hst (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_HST) })) == Status::SUCCESS) [[likely]]
             return space_hst = o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     detach (Kobject::Subtype::HST);
@@ -149,7 +151,8 @@ Space_gst *Pd::create_gst (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_GST) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -169,7 +172,8 @@ Space_dma *Pd::create_dma (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_DMA) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -186,7 +190,8 @@ Space_pio *Pd::create_pio (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_PIO) })) == Status::SUCCESS) [[likely]]
             return a ? space_pio = o : o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     if (a)
@@ -204,7 +209,8 @@ Space_msr *Pd::create_msr (Status &s, Space_obj *obj, unsigned long sel)
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sp::DEFINED_MSR) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -219,7 +225,8 @@ Pd *Pd::create_pd (Status &s, Space_obj *obj, unsigned long sel, unsigned prm)
         if ((s = obj->insert (sel, Capability { o, prm })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -234,7 +241,8 @@ Ec *Pd::create_ec (Status &s, Space_obj *obj, unsigned long sel, cpu_t cpu, uint
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_ec::DEFINED) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -251,7 +259,8 @@ Sc *Pd::create_sc (Status &s, Space_obj *obj, unsigned long sel, Ec *ec, cpu_t c
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_sc::DEFINED) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -268,7 +277,8 @@ Pt *Pd::create_pt (Status &s, Space_obj *obj, unsigned long sel, Ec *ec, uintptr
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_pt::DEFINED) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -283,7 +293,8 @@ Sm *Pd::create_sm (Status &s, Space_obj *obj, unsigned long sel, uintptr_t v, vo
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (o->subtype == Subtype::SM_INT ? Capability::Perm_sm::DEFINED_INT : Capability::Perm_sm::DEFINED) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;
@@ -298,7 +309,8 @@ Dc *Pd::create_dc (Status &s, Space_obj *obj, unsigned long sel, uint64_t t, uin
         if ((s = obj->insert (sel, Capability { o, std::to_underlying (Capability::Perm_dc::DEFINED) })) == Status::SUCCESS) [[likely]]
             return o;
 
-        o->destroy();
+        if (s == Status::MEM_CAP)
+            o->destroy();
     }
 
     return nullptr;

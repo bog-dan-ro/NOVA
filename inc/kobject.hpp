@@ -73,6 +73,10 @@ class Kobject : public Refcnt, public Rcu::Element
     protected:
         explicit Kobject (Type t, Subtype s = Subtype::NONE) : type { t }, subtype { s } {}
 
+        // When the last reference is dropped, submit to the RCU queue so destroy()
+        // is called only after all CPUs have passed through a quiescent state.
+        void retire() override final { rcu_submit(); }
+
         [[nodiscard]] static void *operator new (size_t, Slab_cache &cache) noexcept
         {
             return cache.alloc();

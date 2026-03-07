@@ -31,6 +31,10 @@ class Refcnt
 
         virtual void collect() = 0;
 
+        // Called after collect() when the refcount reaches zero. Kobject overrides this
+        // to submit itself to the RCU reclamation queue; non-Kobject users keep the no-op.
+        virtual void retire() {}
+
     protected:
         // Constructor
         Refcnt() = default;
@@ -66,8 +70,10 @@ class Refcnt
             assert (ref != 0);
 
             // Invoke callback function when refcount becomes zero
-            if (--ref == 0) [[unlikely]]
+            if (--ref == 0) [[unlikely]] {
                 collect();
+                retire();
+            }
         }
 };
 
