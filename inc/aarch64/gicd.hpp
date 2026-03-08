@@ -93,7 +93,7 @@ class Gicd final : private Coresight, private Intid
         static void write (Arr32 r, unsigned n, uint32_t v) { *reinterpret_cast<uint32_t volatile *>(MMAP_GLB_GICD + std::to_underlying (r) + n * sizeof (uint32_t)) = v; }
         static void write (Arr64 r, unsigned n, uint64_t v) { *reinterpret_cast<uint64_t volatile *>(MMAP_GLB_GICD + std::to_underlying (r) + n * sizeof (uint64_t)) = v; }
 
-        static inline constinit uint64_t phys    { Board::gic[0].mmio };
+        static inline constinit uintptr_t phys    { Board::gic[0].mmio };
         static inline constinit uint8_t  ifid[8] { 0 };
         static inline constinit Spinlock lock;
 

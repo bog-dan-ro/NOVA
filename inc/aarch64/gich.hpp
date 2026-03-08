@@ -44,7 +44,7 @@ class Gich final
             LR          = 0x0100,   // v2 -- rw List Registers
         };
 
-        static inline constinit uint64_t phys { Board::gic[3].mmio };
+        static inline constinit uintptr_t phys { Board::gic[3].mmio };
 
         static auto read  (Reg32 r)                  { return *reinterpret_cast<uint32_t volatile *>(MMAP_GLB_GICH + std::to_underlying (r)); }
         static auto read  (Arr32 r, unsigned n)      { return *reinterpret_cast<uint32_t volatile *>(MMAP_GLB_GICH + std::to_underlying (r) + n * sizeof (uint32_t)); }

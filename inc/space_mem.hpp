@@ -47,7 +47,7 @@ template<typename T> class Space_mem : public Space
 
         Space_mem (Kobject::Subtype s, Refptr<Pd> &ref_pd) : Space { s, ref_pd } {}
 
-        static void access_ctrl (T &mem, uint64_t phys, size_t size, Paging::Permissions perm, Memattr attr)
+        static void access_ctrl (T &mem, uintptr_t phys, size_t size, Paging::Permissions perm, Memattr attr)
         {
             for (unsigned o; size; size -= BITN (o), phys += BITN (o))
                 mem.update (phys, phys, (o = aligned_order (size, phys)) - PAGE_BITS, perm, attr);

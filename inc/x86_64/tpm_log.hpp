@@ -24,7 +24,7 @@ class Tpm_log final
     friend class Hip_arch;
 
     private:
-        static inline constinit uint64_t phys { 0 };
+        static inline constinit uintptr_t phys { 0 };
         static inline constinit uint32_t size { 0 };
         static inline constinit uint32_t offs { 0 };
         static inline constinit size_t   tdsz { 0 };

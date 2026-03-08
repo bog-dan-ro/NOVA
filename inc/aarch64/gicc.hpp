@@ -46,7 +46,7 @@ class Gicc final : private Intid
             DIR         = 0x1000,   // Deactivate Interrupt Register
         };
 
-        static inline constinit uint64_t phys { Board::gic[2].mmio };
+        static inline constinit uintptr_t phys { Board::gic[2].mmio };
 
         static auto read  (Reg32 r)      { return *reinterpret_cast<uint32_t volatile *>(MMAP_GLB_GICC + std::to_underlying (r)); }
         static void write (Reg32 r, uint32_t v) { *reinterpret_cast<uint32_t volatile *>(MMAP_GLB_GICC + std::to_underlying (r)) = v; }

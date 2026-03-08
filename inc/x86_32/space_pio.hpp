@@ -69,7 +69,7 @@ class Space_pio final : public Space
 
         void destroy() override final;
 
-        static void access_ctrl (uint64_t base, size_t size, Paging::Permissions perm)
+        static void access_ctrl (uintptr_t base, size_t size, Paging::Permissions perm)
         {
             for (unsigned i { 0 }; i < size; i++)       // FIXME: Optimize
                 nova.update (base + i, perm);

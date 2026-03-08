@@ -93,5 +93,5 @@ class Space_hst final : public Space_mem<Space_hst>
 
         void init (cpu_t);
 
-        static void access_ctrl (uint64_t phys, size_t size, Paging::Permissions perm) { Space_mem::access_ctrl (nova, phys, size, perm, Memattr::dev()); }
+        static void access_ctrl (uintptr_t phys, size_t size, Paging::Permissions perm) { Space_mem::access_ctrl (nova, phys, size, perm, Memattr::dev()); }
 };
