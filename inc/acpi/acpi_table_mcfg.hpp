@@ -22,6 +22,7 @@
 #pragma once
 
 #include "acpi_table.hpp"
+#include "string.hpp"
 
 /*
  * Memory Mapped Configuration Space Description Table (MCFG)
@@ -47,12 +48,12 @@ class Acpi_table_mcfg final
 
         static constexpr struct
         {
-            char const *oem;
-            char const *tbl;
+            string_view oem;
+            string_view tbl;
             uint64_t    seg;
         } quirk[] =
         {
-            { "NVIDIA", "TEGRA194", BIT64_RANGE (63, 0) },
+            { "NVIDIA"_sv, "TEGRA194"_sv, BIT64_RANGE (63, 0) },
         };
 
     public:

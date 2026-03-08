@@ -8,6 +8,14 @@ set(NOVA_ARCH_FLAGS
     -mno-red-zone
 )
 
+# Bootstrap-specific flags (no -mcmodel=kernel for relocability)
+set(NOVA_BSP_ARCH_FLAGS
+    -Wa,--divide,--noexecstack
+    -march=x86-64-v2
+    -mgeneral-regs-only
+    -mno-red-zone
+)
+
 set(NOVA_ARCH_DEFINES "")
 set(NOVA_ARCH_WFLAGS  "")
 set(NOVA_ARCH_LFLAGS  "")

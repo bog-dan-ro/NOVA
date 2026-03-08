@@ -30,7 +30,7 @@ void Acpi_table_mcfg::Segment::parse (char const (&oem)[6], char const (&tbl)[8]
 
     // Ignore segments with broken ECAM
     for (unsigned i { 0 }; i < sizeof (quirk) / sizeof (*quirk); i++)
-        if (!strncmp (quirk[i].oem, oem, sizeof (oem)) && !strncmp (quirk[i].tbl, tbl, sizeof (tbl)) && quirk[i].seg & BIT64 (seg))
+        if (quirk[i].oem == string_view{oem, sizeof (oem)} && quirk[i].tbl == string_view {tbl, sizeof (tbl)} && quirk[i].seg & BIT64 (seg))
             unusable = true;
 
     if (unusable || !Pci::init_seg (phys_base, seg, sbn, ebn)) [[unlikely]]

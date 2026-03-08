@@ -23,7 +23,7 @@
 #pragma once
 
 #include "compiler.hpp"
-#include "types.hpp"
+#include "string.hpp"
 
 class Cmdline final
 {
@@ -45,8 +45,8 @@ class Cmdline final
     private:
         static constexpr struct
         {
-            char const *    str;
-            bool &          var;
+            string_view    str;
+            bool &         var;
         } options[]
         {
             { "insecure",   insecure    },

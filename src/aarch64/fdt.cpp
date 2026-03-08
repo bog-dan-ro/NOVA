@@ -121,33 +121,33 @@ void Fdt::Header::parse_subtree (Unaligned_be<uint32_t> const *&w, unsigned pa_c
                         trace (TRACE_FIRM | TRACE_PARSE, "%*s%s = true", l * indent, "", s);
 
                     // u32 Single
-                    } else if (*s == '#' || !strcmp (s, "interrupt-parent") || !strcmp (s, "phandle") || !strcmp (s, "virtual-reg")) {
+                    } else if (*s == '#' || "interrupt-parent"_sv == s || "phandle"_sv == s || "virtual-reg"_sv == s) {
                         uint32_t const val { *v };
                         trace (TRACE_FIRM | TRACE_PARSE, "%*s%s = %#x", l * indent, "", s, val);
-                        if (!strcmp (s, "#address-cells"))
+                        if ("#address-cells"_sv == s)
                             a_cells = val;
-                        else if (!strcmp (s, "#size-cells"))
+                        else if ("#size-cells"_sv == s)
                             s_cells = val;
 
                     // u32 Multiple
-                    } else if (!strcmp (s, "clocks")) {
+                    } else if ("clocks"_sv == s) {
                         for (auto i { len / sizeof (uint32_t) }; i--; v++) {
                             uint32_t const val { *v };
                             trace (TRACE_FIRM | TRACE_PARSE, "%*s%s = %#x", l * indent, "", s, val);
                         }
 
                     // u32 or u64
-                    } else if (!strcmp (s, "clock-frequency") || !strcmp (s, "timebase-frequency")) {
+                    } else if ("clock-frequency"_sv == s || "timebase-frequency"_sv == s) {
                         uint64_t val { 0 };
                         for (auto i { len / sizeof (uint32_t) }; i--; val = (val << 32) | *v++) ;
                         trace (TRACE_FIRM | TRACE_PARSE, "%*s%s = %lu", l * indent, "", s, val);
 
                     // String
-                    } else if (!strcmp (s, "device_type") || !strcmp (s, "model") || !strcmp (s, "name") || !strcmp (s, "status")) {
+                    } else if ("device_type"_sv == s || "model"_sv == s || "name"_sv == s || "status"_sv == s) {
                         trace (TRACE_FIRM | TRACE_PARSE, "%*s%s = %s", l * indent, "", s, p);
 
                     // Stringlist
-                    } else if (!strcmp (s, "clock-names") || !strcmp (s, "compatible") || !strcmp (s, "enable-method")) {
+                    } else if ("clock-names"_sv == s || "compatible"_sv == s || "enable-method"_sv == s) {
                         char const *x, *y;
                         for (x = y = p; y < p + len; y++)
                             if (!*y) {
@@ -156,17 +156,17 @@ void Fdt::Header::parse_subtree (Unaligned_be<uint32_t> const *&w, unsigned pa_c
                             }
 
                     // Prop-Encoded Array
-                    } else if (!strcmp (s, "interrupts")) {
+                    } else if ("interrupts"_sv == s) {
                         l_interrupts = len;
                         p_interrupts = v;
 
                     // Prop-Encoded Array
-                    } else if (!strcmp (s, "ranges")) {
+                    } else if ("ranges"_sv == s) {
                         l_ranges = len;
                         p_ranges = v;
 
                     // Prop-Encoded Array
-                    } else if (!strcmp (s, "reg")) {
+                    } else if ("reg"_sv == s) {
                         l_reg = len;
                         p_reg = v;
 

@@ -3,8 +3,7 @@
 target_sources(nova PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/bootstrap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/builtins.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/clint.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_ns16550.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/console_sbi.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/counter.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ec_arch.cpp

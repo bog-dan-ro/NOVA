@@ -8,7 +8,6 @@ target_sources(nova PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/board_qemu.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cache.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/clint.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/console_uart_ns16550.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cos.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/counter.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/cpu.hpp

@@ -1,7 +1,7 @@
 /*
  * SBI (Supervisor Binary Interface)
  *
- * Copyright (C) 2019-2025 Udo Steinberg, BlueRock Security, Inc.
+ * Copyright (C) 2026 BogDan Vatra <bogdan@kde.org>
  *
  * This file is part of the NOVA microhypervisor.
  *

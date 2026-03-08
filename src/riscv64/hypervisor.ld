@@ -30,7 +30,7 @@ PHDRS
 
 SECTIONS
 {
-    . = LOAD_ADDR;
+    . = LINK_ADDR;
 
     /* NOVA_HPAS: Start of hypervisor image in physical address space
      * We define it at LINK_ADDR (virtual) since that's where the kernel
@@ -38,23 +38,18 @@ SECTIONS
      * is LOAD_ADDR. Kmem::sym_to_phys will handle the conversion. */
     PROVIDE_HIDDEN (NOVA_HPAS = LINK_ADDR);
 
-    .init :
-    {
-        *(.init .init.*)
-    } : init
-
-    .text . + OFFSET : AT (ADDR (.text) - OFFSET)
+    .text :
     {
         *(.text.hot .text.hot.*)
         *(.text .text.* .gnu.linkonce.t.*)
     } : kern
 
-    .rodata : AT (ADDR (.rodata) - OFFSET)
+    .rodata :
     {
         *(.rodata .rodata.* .gnu.linkonce.r.*)
     } : kern
 
-    .init_array : AT (ADDR (.init_array) - OFFSET)
+    .init_array :
     {
         PROVIDE_HIDDEN (CTORS_L = .);
         KEEP (*(SORT_BY_INIT_PRIORITY (.init_array.65534) SORT_BY_INIT_PRIORITY (.ctors.00001)))
@@ -66,21 +61,21 @@ SECTIONS
         PROVIDE_HIDDEN (CTORS_E = .);
     } : kern
 
-    .data : AT (ADDR (.data) - OFFSET)
+    .data :
     {
         *(.data .data.* .gnu.linkonce.d.*)
     } : kern
 
-    .bss : AT (ADDR (.bss) - OFFSET)
+    .bss :
     {
         PROVIDE_HIDDEN (__bss_start = .);
 
         . = ALIGN(4K) + 4K;
-        PROVIDE_HIDDEN (STACK = . - OFFSET);
+        PROVIDE_HIDDEN (STACK = .);
 
-        PROVIDE_HIDDEN (PTAB_HPAS = . - OFFSET);
-        PROVIDE_HIDDEN (PT2H_HPAS = . - OFFSET); . += 4K;
-        PROVIDE_HIDDEN (PT1H_HPAS = . - OFFSET); . += 4K;
+        PROVIDE_HIDDEN (PTAB_HPAS = .);
+        PROVIDE_HIDDEN (PT2H_HPAS = .); . += 4K;
+        PROVIDE_HIDDEN (PT1H_HPAS = .); . += 4K;
 
         *(.bss .bss.* .gnu.linkonce.b.*)
 
@@ -94,7 +89,7 @@ SECTIONS
 
     } : kern
 
-    PROVIDE_HIDDEN (NOVA_HPAE = . - OFFSET);
+    PROVIDE_HIDDEN (NOVA_HPAE = .);
 
     PROVIDE_HIDDEN (DSTK_TOP = MMAP_CPU_DSTT);
 

@@ -43,6 +43,7 @@ MKDIR	?= mkdir -p
 ifeq ($(COMP),gcc)
 HST_CC	?= g++
 TGT_CC	:= $(PREFIX)g++
+TGT_AR	:= $(PREFIX)ar
 TGT_LD	:= $(PREFIX)ld
 TGT_OC	:= $(PREFIX)objcopy
 TGT_SZ	:= $(PREFIX)size
@@ -83,6 +84,10 @@ MFL	:= $(MAKEFILE_LIST)
 SRC	:= hypervisor.ld $(sort $(notdir $(foreach d,$(SRC_DIR),$(wildcard $(d)/*.S)))) $(sort $(notdir $(foreach d,$(SRC_DIR),$(wildcard $(d)/*.cpp))))
 OBJ	:= $(patsubst %.ld,$(PAT_OBJ), $(patsubst %.S,$(PAT_OBJ), $(patsubst %.cpp,$(PAT_OBJ), $(SRC))))
 OBJ_DEP	:= $(OBJ:%.o=%.d)
+
+LDS_OBJ	:= $(OBJ_DIR)/hypervisor.o
+LIB_OBJ	:= $(filter-out $(LDS_OBJ), $(OBJ))
+LIB	:= $(BLD_DIR)/libhyp.a
 
 DIG	:= $(BLD_DIR)/digest
 HYP	:= $(HYP_NAMING)
@@ -141,8 +146,34 @@ CFLAGS	:= $(PFLAGS) $(DFLAGS) $(MFLAGS) $(FFLAGS) $(OFLAGS) $(WFLAGS)
 # Linker flags
 LFLAGS	:= --defsym=GIT_VER=0x$(call gitrv) --gc-sections --warn-common -Map=$(MAP) -static -n -T
 
+# =========================================================================
+# Bootstrap Configuration (built after NOVA, embeds the hypervisor binary)
+# =========================================================================
+
+BSP_SRC_DIR	:= src/$(ARCH)/bootstrap
+BSP_OBJ_DIR	:= $(BLD_DIR)/bootstrap/obj
+
+BSP		:= $(BLD_DIR)/$(BOARD)-nova-bootstrap
+BSP_DBG		:= $(BSP).debug
+BSP_MAP		:= $(BSP).map
+BSP_BIN		:= $(BSP).bin
+
+BSP_SRC		:= $(sort $(notdir $(wildcard $(BSP_SRC_DIR)/*.S))) $(sort $(notdir $(wildcard $(BSP_SRC_DIR)/*.cpp)))
+BSP_OBJ		:= $(patsubst %.S,$(BSP_OBJ_DIR)/%.o, $(patsubst %.cpp,$(BSP_OBJ_DIR)/%.o, $(BSP_SRC)))
+BSP_DEP		:= $(BSP_OBJ:%.o=%.d)
+
+BSP_CFLAGS	:= $(PFLAGS) $(DFLAGS) $(BSP_MFLAGS) $(FFLAGS) $(OFLAGS) $(WFLAGS) -DNOVA_HYP_ELF_PATH=\"$(abspath $(HYP))\"
+BSP_LFLAGS	:= --gc-sections --warn-common -Map=$(BSP_MAP) -static -n
+
+# Default target
+all:			$(HYP) $(BSP_BIN)
+
 # Rules
-$(HYP):			$(OBJ)
+$(LIB):			$(LIB_OBJ)
+			$(call message,LIB,$@)
+			$(TGT_AR) rcs $@ $^
+
+$(HYP):			$(LDS_OBJ) $(LIB)
 			$(call message,LNK,$@)
 			$(TGT_LD) $(LFLAGS) $^ $(ARCH_LFLAGS) -o $@
 			$(call message,DBG,$(DBG))
@@ -156,6 +187,33 @@ $(ELF):			$(HYP)
 $(BIN):			$(HYP)
 			$(call message,BIN,$@)
 			$(H2B) $< $@
+
+# =========================================================================
+# Bootstrap Rules
+# =========================================================================
+
+$(BSP):			$(BSP_OBJ) $(LIB)
+			$(call message,LNK,$@)
+			$(TGT_LD) $(BSP_LFLAGS) -T $(BSP_SRC_DIR)/linker.ld $^ -o $@
+			$(call message,DBG,$(BSP_DBG))
+			$(TGT_OC) --only-keep-debug $@ $(BSP_DBG)
+			$(TGT_OC) --strip-all $@
+
+$(BSP_BIN):		$(BSP)
+			$(call message,BIN,$@)
+			$(H2B) $< $@
+
+$(BSP_OBJ_DIR)/%.o:	$(BSP_SRC_DIR)/%.S
+			$(call message,ASM,$@)
+			$(TGT_CC) $(BSP_CFLAGS) -c $< -o $@
+
+$(BSP_OBJ_DIR)/%.o:	$(BSP_SRC_DIR)/%.cpp
+			$(call message,CXX,$@)
+			$(TGT_CC) $(BSP_CFLAGS) -c $< -o $@
+
+$(BSP_OBJ_DIR):
+			$(call message,DIR,$@)
+			@$(MKDIR) $@
 
 $(PAT_OBJ):		%.ld
 			$(call message,PRE,$@)
@@ -190,15 +248,17 @@ Makefile.conf:
 
 $(DIG):			$(MFL) | $(BLD_DIR) tool_hst_cc
 $(OBJ):			$(MFL) | $(OBJ_DIR) tool_tgt_cc
+$(BSP_OBJ):		$(MFL) $(HYP) | $(BSP_OBJ_DIR) tool_tgt_cc
 
 # Zap old-fashioned suffixes
 .SUFFIXES:
 
-.PHONY:			clean install run tool_hst_cc tool_tgt_cc
+.PHONY:			all clean install run debug tool_hst_cc tool_tgt_cc
 
 clean:
 			$(call message,CLN,$@)
-			$(RM) $(DIG) $(OBJ) $(HYP) $(DBG) $(MAP) $(ELF) $(BIN) $(OBJ_DEP)
+			$(RM) $(DIG) $(OBJ) $(LIB) $(HYP) $(DBG) $(MAP) $(ELF) $(BIN) $(OBJ_DEP)
+			$(RM) $(BSP_OBJ) $(BSP_DEP) $(BSP) $(BSP_DBG) $(BSP_MAP) $(BSP_BIN)
 
 install:		$(foreach d,$(INS_DIR),install-to-$(subst :,@,$(d))) | $(DIG)
 			@echo "Section Sizes for $(HYP)"
@@ -211,10 +271,10 @@ ifeq ($(INSTALL_INTEGRITY),yes)
 			@echo $(shell $(DIG) $(HYP) | sha512sum) "SHA2-512"
 endif
 
-run:			$(ELF)
+run:			$(BSP_BIN)
 			$(RUN) -kernel $<
 
-debug:			$(ELF)
+debug:			$(BSP)
 			$(RUN) -s -S -kernel $<
 
 tool_hst_cc:
@@ -234,4 +294,5 @@ $(foreach d,$(INS_DIR),$(eval $(call INSTALL_RULE,$(HYP),$(d))))
 # Include Dependencies
 ifneq ($(MAKECMDGOALS),clean)
 -include		$(OBJ_DEP)
+-include		$(BSP_DEP)
 endif
