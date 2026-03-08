@@ -20,6 +20,15 @@
 #include "atomic.hpp"
 #include "types.hpp"
 
+/*
+ * Monotonically-allocated SMMU stream/domain identifier.
+ *
+ * Each new Sdid claims the next sequential value from a global atomic
+ * counter. The identifier is immutable after construction and implicitly
+ * converts to uint8_t for use in SMMU hardware registers.
+ *
+ * FIXME: Overflow is not currently handled.
+ */
 class Sdid final
 {
     private:

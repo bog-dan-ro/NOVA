@@ -20,6 +20,13 @@
 
 #include "timeout.hpp"
 
+/*
+ * Per-CPU scheduling-budget timeout.
+ *
+ * One instance per CPU (timeout). Fires when the current SC exhausts its
+ * time budget. trigger() sets Hazard::SCHED to force a reschedule and also
+ * runs Rcu::check() as a convenient quiescent-state checkpoint.
+ */
 class Timeout_budget final : public Timeout
 {
     private:

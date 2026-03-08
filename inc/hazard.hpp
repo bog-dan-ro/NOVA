@@ -24,6 +24,10 @@
 #include "atomic.hpp"
 #include "macros.hpp"
 
+/*
+ * Per-CPU bitmask of pending deferred actions checked at scheduling boundaries
+ * (syscall return, IPI, and budget expiry).
+ */
 class Hazard final
 {
     private:
@@ -45,14 +49,14 @@ class Hazard final
     public:
         enum
         {
-            SCHED       = BIT  (0),
-            SLEEP       = BIT  (1),
-            RCU         = BIT  (2),
-            TR          = BIT (15),     // x86 only
-            FPU         = BIT (16),
-            TSC         = BIT (29),     // x86 only
-            RECALL      = BIT (30),
-            ILLEGAL     = BIT (31),
+            SCHED       = BIT  (0),     // Reschedule at next safe point
+            SLEEP       = BIT  (1),     // Halt CPU after next scheduling decision
+            RCU         = BIT  (2),     // Report quiescent state to advance RCU epoch
+            TR          = BIT (15),     // (x86) Reload TSS
+            FPU         = BIT (16),     // FPU state needs lazy save/restore on next EC switch
+            TSC         = BIT (29),     // (x86) Update TSC offset register for new EC
+            RECALL      = BIT (30),     // vCPU recall IPI received; preempt guest
+            ILLEGAL     = BIT (31),     // Guest executed illegal/unsupported instruction
         };
 
         explicit constexpr Hazard (hazard_t h) : val { h } {}

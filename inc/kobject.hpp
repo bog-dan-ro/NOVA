@@ -26,11 +26,24 @@
 #include "refcnt.hpp"
 #include "slab.hpp"
 
+/*
+ * Base class for all NOVA kernel objects (Pd, Ec, Sc, Pt, Sm, Dc).
+ *
+ * Combines reference counting (Refcnt) with RCU-deferred reclamation
+ * (Rcu::Element). The mandatory 64-byte alignment ensures the low 6 bits of
+ * any Kobject pointer are always zero, which Capability uses to encode
+ * permission bits in those bits (see Capability::pmask).
+ *
+ * Subclasses are allocated from per-PD Slab_cache instances and freed via
+ * destroy() -> RCU grace period -> collect().
+ */
 class Kobject : public Refcnt, public Rcu::Element
 {
     friend class Capability;
 
     public:
+        // Minimum alignment of Kobject subclasses; equals the number of bits
+        // available for capability permission encoding in a pointer.
         static constexpr auto alignment { BIT (6) };
 
         enum class Type : uint8_t

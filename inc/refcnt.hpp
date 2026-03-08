@@ -24,6 +24,18 @@
 #include "assert.hpp"
 #include "atomic.hpp"
 
+/*
+ * Base class providing atomic reference counting for kernel objects.
+ *
+ * The reference count starts at zero. The first reference is established with
+ * ref_inc() (used immediately after construction). Additional references are
+ * acquired with try_inc(), which fails if the object is already dead (count
+ * zero) or the count would overflow. When the last ref_dec() call drives the
+ * count back to zero, collect() followed by retire() are invoked.
+ *
+ * Kobject overrides retire() to submit the object to the RCU queue so that
+ * destroy() is called only after a full RCU grace period.
+ */
 class Refcnt
 {
     private:
@@ -47,6 +59,15 @@ class Refcnt
 
     public:
         // Increment refcount unless zero or overflowing
+        /*
+         * Attempt to increment the reference count.
+         *
+         * Fails (returns 0) if the object is dead (count == 0) or the count
+         * would overflow. This is the safe way to obtain a reference to an
+         * object whose liveness is not guaranteed by the caller.
+         *
+         * @return  New reference count on success, 0 on failure
+         */
         [[nodiscard]] size_t try_inc()
         {
             for (size_t o { ref }, n; n = o + 1, o && n; )
@@ -56,7 +77,12 @@ class Refcnt
             return 0;
         }
 
-        // Increment refcount unconditionally
+        /*
+         * Increment the reference count unconditionally.
+         *
+         * Asserts that the count is currently zero (i.e. this is the first
+         * reference being established on a freshly constructed object).
+         */
         void ref_inc()
         {
             assert (ref == 0);
@@ -64,7 +90,13 @@ class Refcnt
             ++ref;
         }
 
-        // Decrement refcount unconditionally
+        /*
+         * Decrement the reference count unconditionally.
+         *
+         * When the count reaches zero, calls collect() (object-specific
+         * cleanup) and retire() (schedules RCU-deferred destruction for
+         * Kobject subclasses, no-op otherwise).
+         */
         void ref_dec()
         {
             assert (ref != 0);
@@ -77,6 +109,15 @@ class Refcnt
         }
 };
 
+/*
+ * RAII smart pointer that holds one reference on a Refcnt-derived object.
+ *
+ * Acquires the reference via try_inc() at construction time; if try_inc()
+ * fails (object is dead), the pointer is stored as nullptr. Releases the
+ * reference via ref_dec() at destruction. Move construction/assignment
+ * transfer ownership without touching the reference count. Copy operations
+ * are deleted.
+ */
 template<typename T> class Refptr final
 {
     private:

@@ -22,11 +22,22 @@
 
 /*
  * Atomic Type T
+ *
+ * Wraps a value of type T and exposes all accesses as GCC built-in atomic
+ * operations. Template parameters L and S control the default memory-order
+ * for load() and store() respectively (GCC __ATOMIC_* constants, both
+ * defaulting to __ATOMIC_RELAXED). All read-modify-write operators use
+ * __ATOMIC_ACQ_REL.
  */
 template<typename T, int L = __ATOMIC_ACQUIRE, int S = __ATOMIC_RELEASE, int M = __ATOMIC_ACQ_REL> class Atomic;
 
 /*
  * Atomic Integral Type T
+ *
+ * Provides the full set of atomic arithmetic, bitwise, exchange, and
+ * compare-exchange operations. test_and_set(v) atomically ORs v and returns
+ * the subset of v bits that were already set; test_and_clr(v) atomically
+ * ANDs ~v and returns the subset of v bits that were set before the operation.
  */
 template<typename T, int L, int S, int M> requires (std::integral<T>) class Atomic<T, L, S, M> final
 {
@@ -83,6 +94,9 @@ template<typename T, int L, int S, int M> requires (std::integral<T>) class Atom
 
 /*
  * Atomic Non-Integral Type T
+ *
+ * Supports load, store, exchange, and compare-exchange. Arithmetic and
+ * bitwise operators are not available for non-integral types.
  */
 template<typename T, int L, int S, int M> requires (!std::integral<T>) class Atomic<T, L, S, M> final
 {

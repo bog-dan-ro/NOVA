@@ -20,6 +20,10 @@
 
 #pragma once
 
+/*
+ * RAII lock guard: acquires lock L on construction, releases it on
+ * destruction, ensuring correct pairing even with early returns.
+ */
 template<typename T> class Lock_guard final
 {
     private:

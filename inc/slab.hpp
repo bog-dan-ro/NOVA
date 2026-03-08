@@ -24,15 +24,28 @@
 #include "initprio.hpp"
 #include "spinlock.hpp"
 
+/*
+ * Fixed-size object allocator backed by page-sized slab pages.
+ *
+ * Slabs are obtained from the buddy allocator and divided into equal-sized
+ * buffers. The slab list is maintained in partial-then-full order:
+ *   nullptr <- P <-> P <-> ... <-> P <-> F <-> F -> nullptr
+ *              ^                   ^
+ *            head                curr
+ *
+ * `curr` always points to the rightmost partial slab (or nullptr when all
+ * slabs are full or the cache is empty). Allocation and free are O(1).
+ * Thread-safe via an internal spinlock.
+ */
 class Slab_cache final
 {
     private:
         struct Slab;
 
-        uint16_t const  bsz;                    // Buffer size
+        uint16_t const  bsz;                    // Buffer size (rounded up to alignment)
         uint16_t const  bps;                    // Buffers per Slab
-        Slab *          curr    { nullptr };    // Current (Partial) Slab
-        Slab *          head    { nullptr };    // Head of Slab List
+        Slab *          curr    { nullptr };    // Current (partial) slab; nullptr if all slabs are full
+        Slab *          head    { nullptr };    // Head of Slab list (partial slabs precede full slabs)
         Spinlock        lock;                   // Allocator Spinlock
 
     public:

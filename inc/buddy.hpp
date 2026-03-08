@@ -26,6 +26,20 @@
 #include "queue.hpp"
 #include "spinlock.hpp"
 
+/*
+ * Physical-page buddy allocator.
+ *
+ * Manages a contiguous range of page-aligned memory in power-of-two sized
+ * blocks (order 0 = 1 page, order N = 2^N pages). Free blocks are kept in
+ * per-order freelists; allocation splits higher-order blocks as needed;
+ * freeing coalesces a block with its buddy as far up as possible.
+ *
+ * The block metadata array is placed at the high end of the managed region.
+ * All freelist accesses are serialised by a single global spinlock.
+ *
+ * wait() adds a block to the per-CPU waitlist for deferred processing via
+ * free_wait(), avoiding contention from interrupt/IPI contexts.
+ */
 class Buddy final
 {
     public:

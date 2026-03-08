@@ -21,6 +21,13 @@
 #include "stc.hpp"
 #include "timer.hpp"
 
+/*
+ * Spin-based polling helper with a millisecond wall-clock timeout.
+ *
+ * until(ms, func) repeatedly calls func() and pause() until func() returns
+ * true or the deadline (converted to STC ticks) is exceeded. Returns true
+ * if func() returned true within the deadline, false on timeout.
+ */
 class Wait final
 {
     public:

@@ -18,6 +18,14 @@
 
 #pragma once
 
+/*
+ * Intrusive singly-linked list.
+ *
+ * T must inherit from List<T>. Elements are appended to the tail of the list
+ * (insert) or removed by identity scan (remove). Both operations are O(N).
+ * Used for boot-time singleton registration chains where O(N) cost is
+ * acceptable.
+ */
 template<typename T> class List
 {
     protected:

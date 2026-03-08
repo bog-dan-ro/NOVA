@@ -22,13 +22,20 @@
 
 class Sm;
 
+/*
+ * Per-EC timeout for blocking hypercalls with an absolute deadline.
+ *
+ * Embedded in Ec. When trigger() fires, it calls Sm::timeout() on the
+ * associated semaphore, which removes the EC from the semaphore's wait queue
+ * and wakes it with Status::TIMEOUT.
+ */
 class Timeout_hypercall : public Timeout
 {
     private:
-        Sm *sm { nullptr };
+        Sm *sm { nullptr };  // Semaphore on which the EC is waiting; set by Ec::set_timeout()
 
         void trigger() override final;
 
     public:
-        void enqueue (uint64_t t, Sm *s) { sm = s; Timeout::enqueue (t); }
+        void enqueue (uint64_t t, Sm *s) { sm = s; Timeout::enqueue (t); }   // Arm with deadline and SM
 };

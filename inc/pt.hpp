@@ -24,11 +24,20 @@
 #include "ec.hpp"
 #include "mtd_arch.hpp"
 
+/*
+ * A portal (PT) is an IPC endpoint that binds an entry instruction pointer
+ * and a message-transfer descriptor (MTD) to a target execution context.
+ *
+ * When an EC calls a portal, NOVA copies the UTCB fields indicated by `mtd`,
+ * stores `id` in the UTCB, and transfers execution to the bound EC at `ip`.
+ * The portal identifier (`id`) and MTD can be updated atomically at any time
+ * via set_id() and set_mtd().
+ */
 class Pt final : public Kobject
 {
     private:
         Refptr<Ec> const ec;    // Bound EC (also implies Owner PD)
-        uintptr_t  const ip;    // Entry IP
+        uintptr_t  const    ip;     // Entry IP: instruction pointer on portal invocation
 
         /*
          * Memory Ordering
@@ -37,8 +46,8 @@ class Pt final : public Kobject
          * - Ambient CPU: after ctrl_pt returned
          * - Remote CPUs: after external ACQUIRE/RELEASE synchronization with ambient CPU, denoting that ctrl_pt returned
          */
-        Atomic<uintptr_t, __ATOMIC_RELAXED, __ATOMIC_RELAXED, __ATOMIC_RELAXED> id  { 0 };
-        Atomic<Mtd_arch,  __ATOMIC_RELAXED, __ATOMIC_RELAXED, __ATOMIC_RELAXED> mtd { Mtd_arch { 0 } };
+        Atomic<uintptr_t, __ATOMIC_RELAXED, __ATOMIC_RELAXED, __ATOMIC_RELAXED> id  { 0 };              // Portal identifier echoed in UTCB on entry
+        Atomic<Mtd_arch,  __ATOMIC_RELAXED, __ATOMIC_RELAXED, __ATOMIC_RELAXED> mtd { Mtd_arch { 0 } }; // Message-transfer descriptor
 
         explicit Pt (Refptr<Ec> &, uintptr_t);
 

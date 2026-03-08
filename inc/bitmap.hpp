@@ -21,7 +21,12 @@
 #include "bits.hpp"
 
 /*
- * Atomic Bitmap of B Bits initialized with I
+ * Atomic bitmap of B bits backed by an array of Atomic<uintptr_t> words.
+ *
+ * Template parameter I controls initial state: false (default) clears all
+ * bits; true sets all bits. Bit index s maps to word s/word_bits with mask
+ * 1 << (s % word_bits). All operations are performed atomically via the
+ * underlying Atomic<uintptr_t> operations.
  */
 template<size_t B, bool I = false> class Bitmap final
 {
@@ -35,11 +40,11 @@ template<size_t B, bool I = false> class Bitmap final
         struct { Atomic<bitmap_t> val { I ? ~bitmap_t{} : bitmap_t{} }; } bitmap[aligned_up (cnt, B) / cnt];
 
     public:
-        ALWAYS_INLINE inline void clr (size_t s)       {        bitmap[idx (s)].val &= ~msk (s); }
-        ALWAYS_INLINE inline void set (size_t s)       {        bitmap[idx (s)].val |=  msk (s); }
-        ALWAYS_INLINE inline bool tst (size_t s) const { return bitmap[idx (s)].val &   msk (s); }
+        ALWAYS_INLINE inline void clr (size_t s)       {        bitmap[idx (s)].val &= ~msk (s); }   // Clear bit s
+        ALWAYS_INLINE inline void set (size_t s)       {        bitmap[idx (s)].val |=  msk (s); }   // Set bit s
+        ALWAYS_INLINE inline bool tst (size_t s) const { return bitmap[idx (s)].val &   msk (s); }   // Test bit s
 
-        ALWAYS_INLINE inline void cfg (size_t s, bool b) { b ? set (s) : clr (s); }
+        ALWAYS_INLINE inline void cfg (size_t s, bool b) { b ? set (s) : clr (s); }                  // Set or clear bit s
 };
 
 // Sanity checks

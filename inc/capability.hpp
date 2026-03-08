@@ -24,6 +24,15 @@
 #include "kobject.hpp"
 #include "std.hpp"
 
+/*
+ * An object capability pairs a pointer to a Kobject with a set of permission
+ * bits encoded in the low bits of that pointer (guaranteed free due to
+ * Kobject::alignment). A capability whose object pointer is null is a null
+ * capability and grants no access.
+ *
+ * Capabilities are stored in Space_obj capability tables and are the sole
+ * mechanism through which user-space addresses kernel objects.
+ */
 class Capability final
 {
     friend class Space_obj;

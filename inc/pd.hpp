@@ -39,11 +39,20 @@ class Sc;
 class Sm;
 class Dc;
 
+/*
+ * A protection domain (PD) is the container for a set of address spaces and
+ * the per-PD Slab_cache instances for every kernel-object type.
+ *
+ * Each PD has an owner (another PD) and may have at most one instance of
+ * each Space subtype, enforced atomically by the `spaces` bitmask.
+ * PD::nova is the kernel's own privileged domain; PD::root is the first
+ * user task created at boot.
+ */
 class Pd final : public Kobject
 {
     private:
-        Refptr<Pd> const    pd;         // Owner PD
-        Atomic<unsigned>    spaces { 0 };
+        Refptr<Pd> const    pd;         // Owner PD (the PD that created this one)
+        Atomic<unsigned>    spaces { 0 }; // Bitmask of attached Space subtypes
 
         Atomic<Space_obj *, __ATOMIC_ACQUIRE, __ATOMIC_RELEASE> space_obj { nullptr };
         Atomic<Space_hst *, __ATOMIC_ACQUIRE, __ATOMIC_RELEASE> space_hst { nullptr };
@@ -56,7 +65,17 @@ class Pd final : public Kobject
             trace (TRACE_DESTROY, "KOBJ: PD %p collected", static_cast<void *>(this));
         }
 
+        /*
+         * Atomically mark space subtype s as attached.
+         *
+         * @return  true if the subtype was not previously attached (success),
+         *          false if it was already attached (duplicate)
+         */
         auto attach (Kobject::Subtype s) { return !spaces.test_and_set (BIT (std::to_underlying (s))); }
+
+        /*
+         * Mark space subtype s as detached.
+         */
         void detach (Kobject::Subtype s) { spaces &= ~BIT (std::to_underlying (s)); }
 
     public:

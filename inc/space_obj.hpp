@@ -26,6 +26,21 @@
 #include "capability.hpp"
 #include "space.hpp"
 
+/*
+ * Capability space: a sparse two-level radix tree of Capability slots.
+ *
+ * The tree has `lev` levels; each node is a page-sized Captable of BIT(bpl)
+ * Atomic<uintptr_t> entries. Level-1 (root) entries point to level-0 leaf
+ * Captables that hold the actual packed Capability values (object pointer
+ * ORed with permission bits).
+ *
+ * Selectors are sbw = bpl*lev bits wide. The top selector values
+ * (NOVA_CON .. ROOT_PD) are kernel-reserved and populated at boot.
+ * Selector 0 (NOVA_CPU) always points to the per-CPU kernel object.
+ *
+ * lookup(), update(), and insert() access individual slots; delegate()
+ * performs a capability delegation from one Space_obj to another.
+ */
 class Space_obj final : public Space
 {
     private:

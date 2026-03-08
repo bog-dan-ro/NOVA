@@ -24,13 +24,29 @@
 
 #include "ec.hpp"
 
+/*
+ * A semaphore (SM) implements a counting semaphore, optionally backed by a
+ * hardware interrupt (subtype SM_INT).
+ *
+ * dn() (P / wait): if the counter is positive it is decremented and the
+ *   caller continues immediately; otherwise the calling EC is queued and
+ *   blocked. An optional absolute deadline arms a hypercall timeout that
+ *   wakes the EC with Status::TIMEOUT on expiry.
+ * up() (V / signal): if any ECs are waiting, the head is woken; otherwise
+ *   the counter is incremented (up to ~0ULL).
+ * timeout(): called by the timeout subsystem when the deadline expires;
+ *   dequeues the EC and wakes it with Status::TIMEOUT.
+ *
+ * The SM_INT subtype additionally stores a platform interrupt handle (`ptr`)
+ * and an interrupt identifier (`iid`) used to re-arm the interrupt source.
+ */
 class Sm final : public Kobject, private Queue<Ec>
 {
     private:
         Refptr<Pd>    const pd;     // Owner PD
-        uint64_t            cnt;
-        void *        const ptr;
-        iid_t         const iid;
+        uint64_t            cnt;    // Semaphore counter
+        void *        const ptr;    // Interrupt handle (SM_INT only)
+        iid_t         const iid;    // Interrupt identifier (SM_INT only)
         Spinlock            lock;
 
         explicit Sm (Refptr<Pd> &, uintptr_t, void *);

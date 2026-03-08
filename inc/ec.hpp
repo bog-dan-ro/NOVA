@@ -36,29 +36,43 @@
 class Fpu;
 class Utcb;
 
+/*
+ * An execution context (EC) is the fundamental unit of execution in NOVA.
+ *
+ * Four subtypes exist (Kobject::Subtype):
+ *   EC_LOCAL:     Pinned to one CPU; cannot be directly bound to an SC.
+ *   EC_GLOBAL:    Bound to a fixed CPU; can own one or more SCs.
+ *   EC_VCPU_REAL: A hardware virtual-CPU context (real VMCS/VMCB).
+ *   EC_VCPU_OFFS: A virtual-CPU with TSC-offset virtualisation support.
+ *
+ * Execution is continuation-based: `cont` holds a function pointer that is
+ * invoked the next time this EC is scheduled. IPC is implemented through a
+ * donation chain: the calling EC records itself as the caller of the callee
+ * and increments the per-CPU donation depth counter.
+ */
 class Ec : public Kobject, public Timeout_hypercall, public Queue<Ec>::Element, private Queue<Sc>
 {
     friend class Ec_arch;
     friend class Tlb;
 
     private:
-        using cont_t = void (*)(Ec *);  // Continuation Type
+        using cont_t = void (*)(Ec *);  // Continuation Type: next kernel action for this EC
 
         Cpu_regs            regs;
-        uintptr_t     const evt;
-        cpu_t         const cpu;
-        Fpu *         const fpu;
-        void *        const kpage;
-        Ec *                callee      { nullptr };
-        Ec *                caller      { nullptr };
-        Atomic<cont_t>      cont        { nullptr };
+        uintptr_t     const evt;        // Event base selector for exception/interrupt portals
+        cpu_t         const cpu;        // CPU to which this EC is pinned
+        Fpu *         const fpu;        // FPU state save area (nullptr for kernel threads)
+        void *        const kpage;      // Kernel page (UTCB for host ECs, vCPU state for guests)
+        Ec *                callee      { nullptr };    // EC being called (IPC donation target)
+        Ec *                caller      { nullptr };    // EC that called into us (IPC donation source)
+        Atomic<cont_t>      cont        { nullptr };    // Current continuation (nullptr / blocking = blocked)
         Spinlock            lock;
 
         // Ordering: __ATOMIC_RELAXED for local loads, __ATOMIC_SEQ_CST for local stores and remote loads
-        static Atomic<Ec *, __ATOMIC_RELAXED, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST> current asm ("current") CPULOCAL;
-
-        static Ec *         fpowner                 CPULOCAL;
-        static unsigned     donations               CPULOCAL;
+        static Atomic<Ec *, __ATOMIC_RELAXED, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST> current asm ("current") CPULOCAL; // Currently running EC on this CPU
+        
+        static Ec *         fpowner                 CPULOCAL;                                                       // EC that currently owns FPU state
+        static unsigned     donations               CPULOCAL;                                                       // Depth of the IPC donation chain
 
         ALWAYS_INLINE inline auto &cpu_regs() { return regs; }
         ALWAYS_INLINE inline auto &exc_regs() { return regs.exc; }
@@ -240,6 +254,7 @@ class Ec : public Kobject, public Timeout_hypercall, public Queue<Ec>::Element, 
 
         template<Status S, bool T = false> [[noreturn]] NOINLINE static void sys_finish (Ec *);
 
+        // Syscall dispatch table indexed by the low 4 bits of the syscall operand.
         __attribute__((used)) static constexpr cont_t syscall[16] asm ("syscall")
         {
             &sys_ipc_call,

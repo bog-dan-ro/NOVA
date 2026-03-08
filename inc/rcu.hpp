@@ -24,9 +24,31 @@
 #include "atomic.hpp"
 #include "macros.hpp"
 
+/*
+ * Simplified Read-Copy Update (RCU) mechanism for kernel object reclamation.
+ *
+ * Objects submit themselves to the per-CPU `next` list via rcu_submit() after
+ * their last reference is dropped. They advance through three per-CPU stages:
+ *   next  ->  curr  ->  done
+ * A transition from next to curr occurs when a new grace period starts.
+ * A transition from curr to done occurs when the grace period completes
+ * (i.e. every CPU has reported a quiescent state via quiet()). Once in done,
+ * destroy() is called for each element.
+ *
+ * The global `epoch` counter encodes both the epoch number (bits [N:2]) and
+ * state flags in bits [1:0]: COMPLETED(0) and REQUESTED(1). A new epoch is
+ * started once both flags are set simultaneously.
+ */
 class Rcu
 {
     public:
+        /*
+         * Mixin for objects that need RCU-deferred destruction.
+         *
+         * Call rcu_submit() once the object should be destroyed after the
+         * next RCU grace period. The virtual destroy() method is invoked
+         * by handle_callbacks() once the grace period has completed.
+         */
         struct Element
         {
             Element *rcu_next { nullptr };

@@ -22,6 +22,14 @@
 #include "pd.hpp"
 #include "status.hpp"
 
+/*
+ * A device context (DC) associates DMA-remapping and interrupt-routing state
+ * with a protection domain, enabling controlled device assignment.
+ *
+ * The DC_state base carries the architecture-specific IOMMU domain
+ * descriptors. Device and interrupt assignment are performed via the
+ * sys_assign_dev / sys_assign_int hypercalls.
+ */
 class Dc final : public Kobject, public Dc_state
 {
     private:

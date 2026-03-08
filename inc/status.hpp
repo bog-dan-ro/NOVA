@@ -21,18 +21,24 @@
 
 #pragma once
 
+/*
+ * Hypercall return status codes.
+ *
+ * Returned in the first register/UTCB word of the syscall ABI. Values map
+ * directly to the binary encoding seen by user-space.
+ */
 enum class Status : unsigned
 {
-    SUCCESS,
-    TIMEOUT,
-    ABORTED,
-    OVRFLOW,
-    BAD_HYP,
-    BAD_CAP,
-    BAD_PAR,
-    BAD_FTR,
-    BAD_CPU,
-    BAD_DEV,
-    MEM_OBJ,
-    MEM_CAP,
+    SUCCESS,    // Operation completed successfully
+    TIMEOUT,    // Blocking operation timed out
+    ABORTED,    // Operation aborted (e.g. semaphore destroyed while EC was waiting)
+    OVRFLOW,    // Counter overflow (e.g. SM up() when counter is at maximum)
+    BAD_HYP,    // Unknown hypercall number
+    BAD_CAP,    // Invalid capability or insufficient permissions
+    BAD_PAR,    // Invalid parameter value
+    BAD_FTR,    // Unsupported feature
+    BAD_CPU,    // Invalid CPU identifier
+    BAD_DEV,    // Invalid device identifier
+    MEM_OBJ,    // Out of kernel object memory
+    MEM_CAP,    // Out of capability space memory
 };

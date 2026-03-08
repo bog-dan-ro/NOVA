@@ -27,6 +27,19 @@
 #include "paging.hpp"
 #include "space.hpp"
 
+/*
+ * Common base for memory spaces (host, guest, DMA).
+ *
+ * access_ctrl() is a helper that breaks a physically-contiguous region into
+ * naturally-aligned page blocks of the largest possible order and calls
+ * T::update() on each, applying the given permissions and memory attributes.
+ *
+ * Subclasses must provide the concrete page-table type T and implement
+ * T::update(). The template parameter T is the concrete space type (e.g.
+ * Space_hst, Space_gst).
+ *
+ * delegate() copies a mapping from a Space_hst source into this space.
+ */
 template<typename T> class Space_mem : public Space
 {
     protected:
