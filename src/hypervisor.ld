@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Linker Script
  *
  * Copyright (C) 2009-2011 Udo Steinberg <udo@hypervisor.org>
@@ -22,7 +22,7 @@
 #include "arch.hpp"
 #include "memory.hpp"
 
-OUTPUT_ARCH(BFD_ARCH)
+OUTPUT_ARCH(BFD_ARCH);
 OUTPUT_FORMAT(BFD_FORMAT)
 ENTRY(__init_bsp)
 
