@@ -1,0 +1,264 @@
+---
+# NOVA microhypervisor — clang-format configuration
+#
+# Derived from systematic inspection of the well-styled sources
+# (inc/, src/, inc/x86_64/, src/x86_64/, inc/aarch64/, src/aarch64/).
+#
+# Tested with clang-format 19.
+
+Language:        Cpp
+Standard:        Latest
+
+# ---------------------------------------------------------------------------
+# Indentation
+# ---------------------------------------------------------------------------
+
+IndentWidth:            4
+TabWidth:               4
+UseTab:                 Never
+ContinuationIndentWidth: 4
+
+# Access modifiers (private:, public:, protected:) sit one level above
+# their members — so they appear 4 spaces in while members are at 8.
+AccessModifierOffset:   0
+IndentAccessModifiers:  true
+
+IndentCaseLabels:       false
+IndentPPDirectives:     None
+NamespaceIndentation:   None
+
+# ---------------------------------------------------------------------------
+# Column limit
+# ---------------------------------------------------------------------------
+# The codebase intentionally has very long one-liner constructors and
+# template declarations; do not break them for column-limit reasons.
+ColumnLimit:            0
+
+# ---------------------------------------------------------------------------
+# Brace placement  (Stroustrup style)
+# ---------------------------------------------------------------------------
+# Functions, classes, enums → opening brace on its own line.
+# Control-flow statements   → opening brace on the same line.
+# else/catch                → on a new line (BeforeElse / BeforeCatch).
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel:          false
+  AfterClass:              true
+  AfterControlStatement:   Never
+  AfterEnum:               true
+  AfterFunction:           true
+  AfterNamespace:          false
+  AfterStruct:             true
+  AfterUnion:              true
+  AfterExternBlock:        false
+  BeforeCatch:             true
+  BeforeElse:              true
+  BeforeLambdaBody:        false
+  BeforeWhile:             false
+  IndentBraces:            false
+  SplitEmptyFunction:      false
+  SplitEmptyRecord:        false
+  SplitEmptyNamespace:     false
+
+# ---------------------------------------------------------------------------
+# Short-form allowances
+# ---------------------------------------------------------------------------
+# Short inline functions inside a class body may stay on one line;
+# stand-alone function definitions always span multiple lines.
+AllowShortFunctionsOnASingleLine:       Inline
+AllowShortLambdasOnASingleLine:         Inline
+AllowShortBlocksOnASingleLine:          Empty
+AllowShortIfStatementsOnASingleLine:    Never
+AllowShortLoopsOnASingleLine:           false
+AllowShortCaseLabelsOnASingleLine:      false
+AllowShortEnumsOnASingleLine:           false
+
+# ---------------------------------------------------------------------------
+# Pointer / reference alignment
+# ---------------------------------------------------------------------------
+# Right-aligned (star/ampersand binds to the name) is overwhelmingly dominant
+# (329 vs 5 actual code instances):
+#   Ec *ptr        Refptr<Pd> &ref_pd      void *const kpage
+PointerAlignment:       Right
+ReferenceAlignment:     Pointer
+SpaceAroundPointerQualifiers: Default
+QualifierAlignment:     Leave
+
+# ---------------------------------------------------------------------------
+# Template formatting
+# ---------------------------------------------------------------------------
+# No space after the 'template' keyword:  template<typename T>
+SpaceAfterTemplateKeyword:   false
+# Do not break template<…> onto its own line before the declaration it
+# governs — the codebase keeps them on one line even with many parameters.
+BreakTemplateDeclarations:   No
+BreakBeforeConceptDeclarations: Allowed
+RequiresClausePosition:         SingleLine
+IndentRequiresClause:           false
+
+# ---------------------------------------------------------------------------
+# Space before parentheses
+# ---------------------------------------------------------------------------
+# Core rule: non-empty call-site/declaration ( gets a space; empty () does not.
+#   func (args)      if (cond)      sizeof (T)      new (placement) T
+#   func()           obj.empty()    Atomic()        ~Lock_guard()
+#
+# AfterFunctionDeclarationName / AfterFunctionDefinitionName are intentionally
+# left false so that empty-parameter functions such as `void destroy()` do NOT
+# get a spurious space, while BeforeNonEmptyParentheses covers all cases where
+# the parameter list is non-empty.
+#
+# NOTE: clang-format cannot distinguish between a regular function call and a
+# C++ named-cast suffix (static_cast<T>(x)), so BeforeNonEmptyParentheses may
+# insert a space after the closing '>' of a cast.  This is the closest
+# approximation possible without patching clang-format itself.
+SpaceBeforeParens: Custom
+SpaceBeforeParensOptions:
+  AfterControlStatements:       true
+  AfterForeachMacros:           false
+  AfterFunctionDeclarationName: false
+  AfterFunctionDefinitionName:  false
+  AfterIfMacros:                false
+  AfterOverloadedOperator:      false
+  AfterPlacementOperator:       true
+  AfterRequiresInClause:        false
+  AfterRequiresInExpression:    false
+  BeforeNonEmptyParentheses:    true
+
+# No space inside ordinary parentheses.
+SpacesInParens: Never
+SpaceInEmptyBlock: false
+
+# ---------------------------------------------------------------------------
+# Braced-list (C++11 initialiser) style
+# ---------------------------------------------------------------------------
+# All brace-init lists carry spaces:  { value }   { a, b }   { nullptr }
+# Empty bodies remain compact:        {}
+Cpp11BracedListStyle:        false
+SpaceBeforeCpp11BracedList:  true
+
+# No spaces inside angle brackets: Atomic<Ec *>  not  Atomic< Ec * >
+SpacesInAngles:              Never
+
+# ---------------------------------------------------------------------------
+# Operators and misc spacing
+# ---------------------------------------------------------------------------
+SpaceBeforeAssignmentOperators:         true
+SpaceBeforeRangeBasedForLoopColon:      true
+SpaceBeforeSquareBrackets:              false
+SpaceAfterCStyleCast:                   false
+SpaceAfterLogicalNot:                   false
+SpacesInSquareBrackets:                 false
+
+# ---------------------------------------------------------------------------
+# Consecutive-alignment
+# ---------------------------------------------------------------------------
+# The codebase aligns adjacent declarations, macros, and trailing comments
+# into visual columns — replicate that behaviour for new code.
+AlignConsecutiveDeclarations:
+  Enabled:               true
+  AcrossEmptyLines:      false
+  AcrossComments:        false
+  AlignCompound:         false
+  AlignFunctionPointers: false
+  PadOperators:          false
+
+AlignConsecutiveAssignments:
+  Enabled:               true
+  AcrossEmptyLines:      false
+  AcrossComments:        false
+  AlignCompound:         false
+  AlignFunctionPointers: false
+  PadOperators:          false
+
+AlignConsecutiveMacros:
+  Enabled:               true
+  AcrossEmptyLines:      false
+  AcrossComments:        false
+  AlignCompound:         false
+  AlignFunctionPointers: false
+  PadOperators:          false
+
+AlignConsecutiveBitFields:
+  Enabled:               true
+  AcrossEmptyLines:      false
+  AcrossComments:        false
+  AlignCompound:         false
+  AlignFunctionPointers: false
+  PadOperators:          false
+
+AlignTrailingComments:
+  Kind:            Always
+  OverEmptyLines:  0
+
+AlignOperands:      Align
+AlignArrayOfStructures: None
+
+# ---------------------------------------------------------------------------
+# Constructor initialisers
+# ---------------------------------------------------------------------------
+# Colon stays on the line with the constructor name; each member-initialiser
+# goes on its own line with a 4-space indent.
+BreakConstructorInitializers:       AfterColon
+PackConstructorInitializers:        Never
+ConstructorInitializerIndentWidth:  4
+
+# ---------------------------------------------------------------------------
+# Function argument / parameter layout
+# ---------------------------------------------------------------------------
+# When arguments must be broken across lines, align them to the opening '('.
+AlignAfterOpenBracket:  Align
+BinPackArguments:       false
+BinPackParameters:      false
+
+# ---------------------------------------------------------------------------
+# Includes
+# ---------------------------------------------------------------------------
+SortIncludes:    CaseSensitive
+IncludeBlocks:   Preserve
+
+# ---------------------------------------------------------------------------
+# Empty lines and block structure
+# ---------------------------------------------------------------------------
+KeepEmptyLines:
+  AtEndOfFile:     false
+  AtStartOfBlock:  false
+  AtStartOfFile:   false
+MaxEmptyLinesToKeep:            1
+EmptyLineBeforeAccessModifier:  LogicalBlock
+EmptyLineAfterAccessModifier:   Never
+
+# ---------------------------------------------------------------------------
+# Comments
+# ---------------------------------------------------------------------------
+# Do not reflow carefully composed block comments.
+ReflowComments:  false
+
+# ---------------------------------------------------------------------------
+# Attribute macros
+# ---------------------------------------------------------------------------
+# These macros expand to GCC __attribute__((…)) and must stay on the same
+# line as the declaration they annotate.  Without this list clang-format
+# may treat them as stand-alone statements and insert a line-break between
+# the macro and the type/function that follows.
+AttributeMacros:
+  - ALWAYS_INLINE
+  - COLD
+  - HOT
+  - INIT_PRIORITY
+  - NOINLINE
+  - NONNULL
+
+# Attributes (real [[…]] or AttributeMacros) stay on the same line as the
+# declaration they annotate; no line-break is inserted after them.
+BreakAfterAttributes: Never
+
+# ---------------------------------------------------------------------------
+# Miscellaneous
+# ---------------------------------------------------------------------------
+SortUsingDeclarations:   Never
+FixNamespaceComments:    false
+InsertTrailingCommas:    None
+InsertBraces:            false
+InsertNewlineAtEOF:      true
+RemoveSemicolon:         false
