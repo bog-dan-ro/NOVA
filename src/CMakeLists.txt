@@ -25,6 +25,7 @@ target_sources(nova PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/sm.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/space_mem.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/space_obj.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/string.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/syscall.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/timeout.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/timeout_budget.cpp

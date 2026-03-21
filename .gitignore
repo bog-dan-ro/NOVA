@@ -1,7 +1,5 @@
 Makefile.conf
 build-*
 build
-.qtc*
 .qtcreator
 *.patch
-.git*

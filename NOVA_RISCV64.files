@@ -85,7 +85,6 @@ inc/debug.hpp
 inc/ec.hpp
 inc/elf.hpp
 inc/endian.hpp
-inc/fdt/fdt.hpp
 inc/hash.hpp
 inc/hazard.hpp
 inc/hip.hpp
@@ -113,7 +112,6 @@ inc/riscv64/arch.hpp
 inc/riscv64/barrier.hpp
 inc/riscv64/board.hpp
 inc/riscv64/board_qemu.hpp
-inc/riscv64/bootinfo.hpp
 inc/riscv64/cache.hpp
 inc/riscv64/clint.hpp
 inc/riscv64/console_sbi.hpp
@@ -194,10 +192,8 @@ src/ptab.cpp
 src/rcu.cpp
 src/riscv64/CMakeLists.txt
 src/riscv64/bootstrap.cpp
-src/riscv64/bootstrap/linker.ld
-src/riscv64/bootstrap/main.cpp
-src/riscv64/bootstrap/start.S
 src/riscv64/builtins.cpp
+src/riscv64/clint.cpp
 src/riscv64/console_sbi.cpp
 src/riscv64/counter.cpp
 src/riscv64/cpu.cpp

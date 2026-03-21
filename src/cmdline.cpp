@@ -40,7 +40,7 @@ void Cmdline::parse (char const *line)
 {
     for (size_t len; (len = arg_len (line)); line += len)
         for (unsigned i { 0 }; i < sizeof (options) / sizeof (*options); i++)
-            if (options[i].str == line)
+            if (!strncmp (options[i].str, line, len))
                 options[i].var = true;
 }
 

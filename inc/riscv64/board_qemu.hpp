@@ -22,14 +22,32 @@
 
 #ifndef __ASSEMBLER__
 
+#include "debug.hpp"
+
 struct Board
 {
     // RISC-V QEMU virt machine memory map
     static constexpr unsigned long PLIC_BASE  = 0x0c000000;     // Platform-Level Interrupt Controller
+    static constexpr unsigned long CLINT_BASE = 0x02000000;     // Core Local Interruptor
+    static constexpr unsigned long UART_BASE  = 0x10000000;     // NS16550 UART
+
+    // UART configuration
+    struct Uart {
+        Debug::Subtype type;
+        unsigned long  mmio;
+        unsigned       clock;
+    };
+
+    static constexpr Uart uart[] {{ Debug::Subtype::SERIAL_NS16550_DBGP, UART_BASE, 3'686'400 }};
 
     static constexpr struct {
         unsigned long mmio;
     } plic { PLIC_BASE };
+
+    static constexpr struct {
+        unsigned long mmio;
+    } clint { CLINT_BASE };
 };
 
 #endif
+

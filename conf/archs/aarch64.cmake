@@ -8,14 +8,6 @@ set(NOVA_ARCH_FLAGS
     -mstrict-align
 )
 
-# Bootstrap-specific flags (no -mcmodel=large for relocability)
-set(NOVA_BSP_ARCH_FLAGS
-    -march=armv8-a
-    -mgeneral-regs-only
-    -mno-outline-atomics
-    -mstrict-align
-)
-
 set(NOVA_ARCH_DEFINES "BOARD_${NOVA_BOARD}")
 set(NOVA_ARCH_WFLAGS  -Wpedantic)
 set(NOVA_ARCH_LFLAGS  "")
